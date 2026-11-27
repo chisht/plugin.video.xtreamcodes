@@ -3,11 +3,28 @@
 A Kodi 21/22 video add-on for Xtream Codes IPTV providers. It does **not** use
 PVR IPTV Simple; everything runs inside the add-on.
 
-Features: live TV with a TV mode (channel list, mini player, programme
-schedule, zapping with up/down, number entry, favourites, recall), a grid TV
-guide, catch-up/restart, VOD and series, search, TMDb "Discover" (ratings,
-trending, popular), Trakt, reminders, hidden groups and adult filtering,
-configurable User-Agent, and background catalogue/EPG download.
+## Features
+- **TV mode**: channel groups, channel list with what's on now, mini player and
+  programme schedule in one screen. It can open automatically when Kodi starts.
+- **Fast zapping**: Up/Down and CH+/CH- while watching fullscreen, with an
+  instant channel banner. Number entry; 0 goes back to the previous channel.
+- **Grid TV guide** from a full XMLTV download, with time offset correction.
+- **Catch-up** for channels with a TV archive, and **watch from the beginning**
+  (also on the Rewind key).
+- **Movies and series**: categories, recently added, resume, Continue watching,
+  optional export to the Kodi library.
+- **Discover**: trending, popular, top-rated, by genre and decade, with TMDb
+  ratings, listing only what your provider has.
+- **Search** for channels, movies and series, plus search of the TV guide.
+- **Favourites**, hide, rename and reorder groups, move channels.
+- **Reminders** and a **sleep timer**.
+- **Trakt** scrobbling and progress.
+- **Parental**: adult content hidden, with an optional PIN to show it for 3 hours.
+- **Reliable playback**: online check, retry-then-go-back, one-connection-friendly
+  switching, a configurable User-Agent, and background updates.
+- **Backup and restore** of favourites, groups and settings.
+
+See the **[user guide](docs/USER_GUIDE.md)** for how to use everything.
 
 ## Install (with automatic updates)
 1. Download

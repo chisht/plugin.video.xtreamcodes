@@ -1,4 +1,4 @@
-# Handoff (state at version 1.12.1)
+# Handoff (state at version 1.12.2)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -31,6 +31,9 @@ change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
 (a good first cleanup: convert to pytest with asserts).
 
 ## Latest work
+1.12.2: no code changes. New addon.xml summary/description/news, README feature
+list, and a user guide in `docs/USER_GUIDE.md` (keep it in step with new features).
+
 1.12.1: faster zapping. Quick repeated up/down shows each channel's banner at once
 and only tunes the one you stop on (setting `zap_debounce`, tenths of a second,
 0 = off); timing lines in the Kodi log ("ready to play after", "Picture on screen");
