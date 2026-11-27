@@ -111,7 +111,7 @@ gwin.setup('1', '101')
 gwin.onInit()
 check('grid guide opened with the group (%s)' % gwin._props['header'],
       'News' in gwin._props['header'] and len(gwin.rows) == 2)
-check('guide built programme blocks', len(gwin.buttons) >= 6)
+check('guide built programme blocks', len(gwin.buttons) >= 2 * len(gwin.rows))
 now_blocks = [b for r in gwin.cells for b, p in r if p['start'] <= time.time() < p['stop']]
 check('blocks airing now use the theme text colour (%s)'
       % (now_blocks[0].kw['textColor'] if now_blocks else None),

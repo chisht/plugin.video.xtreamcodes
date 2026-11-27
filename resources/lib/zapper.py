@@ -161,7 +161,7 @@ def _zap_tune(state, rows, idx, step, skip, banner=True):
     cursor = state.get('cursor') or state['id']
     skipped = 0
     t_start = time.time()
-    stopped = playback.free_connection()
+    stop_first = common.setting_bool('switch_stop_first')
     for attempt in range(1, min(len(rows), 30) + 1):
         pos = (idx + step * attempt) % len(rows)
         row = rows[pos]
@@ -171,8 +171,8 @@ def _zap_tune(state, rows, idx, step, skip, banner=True):
             skipped += 1
             continue
         if playback.check_live(row):
-            common.log('Channel %s: ready to play %.1fs after the key press' % (
-                row['name'], time.time() - t_start))
+            common.log('Channel %s: ready to play %.1fs after the key press%s' % (
+                row['name'], time.time() - t_start, ' (banner shown)' if banner else ''))
             remember_zap(state['cat'], row['stream_id'], row=row)
             path, li = live_item(row)
             xbmcgui.Window(10000).clearProperty(common.ADDON_ID + '.trakt_now')
@@ -180,10 +180,17 @@ def _zap_tune(state, rows, idx, step, skip, banner=True):
             extra = '%d of %d' % (pos + 1, len(rows))
             if skipped:
                 extra += '   -   skipped %d offline' % skipped
+
             def tune():
+                # The banner is already on screen, so the pause Kodi takes to close
+                # the old stream is spent looking at the new channel's name and
+                # programme, not at a frozen picture.
+                if stop_first:
+                    playback.free_connection()
                 player.play(path, li)
                 playback.watch_engine(row)
-            if banner:   # banner first, then open the stream
+
+            if banner:   # banner first, then close and open
                 overlay.show_banner(row, extra, during=tune)
             else:
                 tune()
@@ -191,7 +198,7 @@ def _zap_tune(state, rows, idx, step, skip, banner=True):
         if not skip:
             # Stay on the current channel; the next press continues past this one.
             playback.offline_notice(row['name'])
-            if stopped:   # it was closed to free the connection: resume it
+            if playback.free_connection():   # closed to free the connection: resume it
                 current = next((r for r in rows if r['stream_id'] == state['id']), None)
                 if current is not None:
                     path, li = live_item(current)
@@ -200,9 +207,9 @@ def _zap_tune(state, rows, idx, step, skip, banner=True):
             return
         skipped += 1
     common.notify('No working channel found nearby', 3000)
-    if stopped:   # nothing better found: go back to what was playing
+    if playback.free_connection():
         current = next((r for r in rows if r['stream_id'] == state['id']), None)
-        if current is not None:
+        if current is not None:   # nothing better found: go back to what played
             path, li = live_item(current)
             player.play(path, li)
 

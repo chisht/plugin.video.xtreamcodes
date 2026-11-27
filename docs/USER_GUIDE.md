@@ -94,6 +94,8 @@ selected channel.
 | Key | In TV mode |
 |---|---|
 | Up / Down | Move through the list. Long lists scroll smoothly; any number of channels is fine. |
+| CH+ / CH− | Tune the next / previous channel in the list (same as OK on it). |
+| PageUp / PageDown | Move to the next / previous group. |
 | Left / Right | Move between groups, channels and schedule. |
 | OK on a group | Show that group's channels. |
 | OK on a channel | Play it in the mini player. Press OK again on the playing channel to go fullscreen. |
@@ -116,6 +118,11 @@ When you leave TV mode the stream stops, unless you turn off **Settings → TV m
 The colours and layout of TV mode (and of the grid guide and the channel banner)
 come from **Settings → Display → Skin** — see
 [Skin](#skin) for the STBEmu / Stalker portal look.
+
+With **Settings → TV mode → Preview the highlighted channel** on, stopping on a
+channel in the list tunes it in the mini player after a moment (as an STBEmu /
+Stalker box does), instead of waiting for OK. It is off by default because every
+channel you rest on is opened, which counts towards your connection limit.
 
 ## 5. Watching live TV fullscreen (remote keys)
 
@@ -335,6 +342,9 @@ anywhere.
   the add-on switches back to Kodi's player by itself and tells you.
 - *Close the current stream before opening the next*: keep this on if your plan
   allows only one connection.
+- *Keep the checked channel playing*: on by default. The online check for the next
+  channel is made while the current one still plays, so zapping starts sooner;
+  turn it off if your provider counts the check as a second connection.
 - *Check channel is online before playing*, *Online check timeout*, *When Up/Down
   reaches an offline channel*, *Mark offline channels*.
 - *Catch-up URL style*, *Catch-up: extra minutes after programme end*.
@@ -349,8 +359,9 @@ anywhere.
 
 **Backup**: back up, restore, reset group names and order.
 
-**TV mode**: start playing the last channel when TV mode opens, reminder lead
-time, stop playback when leaving, open TV mode when Kodi starts.
+**TV mode**: *Preview the highlighted channel*, start playing the last channel when
+TV mode opens, reminder lead time, stop playback when leaving, open TV mode when
+Kodi starts.
 
 **Display**: *Skin* (see below), show what's on now in channel lists, show item
 counts on groups, items per page (0 = all).

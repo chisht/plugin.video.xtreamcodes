@@ -1,4 +1,4 @@
-# Handoff (state at version 1.14.0)
+# Handoff (state at version 1.14.1)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -35,6 +35,17 @@ Add new tests as `tests/<name>_test.py` printing `PASS`/`FAIL` lines and calling
 `sys.exit(1 if fails else 0)`; `run_all.sh` picks them up by itself.
 
 ## Latest work
+1.14.1: zapping. TV mode gained CH+/CH- (`_hop`: tune the next/previous channel in
+the list) and PageUp/PageDown (`_hop_group`: next/previous group); `tv_preview`
+(Settings > TV mode, off by default) makes the worker tune the highlighted channel
+after `tvwindow.PREVIEW_WAIT` (2 s) of quiet, STBEmu style, skipping offline rows.
+`zap_resume` (Settings > Playback, on, level 1) moves the online check in
+`playback.start_live` and `zapper._zap_tune` **before** `free_connection()`, so the
+check runs while the old stream plays and the picture only stops for the actual
+open (off = old order, for providers that count the check as a connection).
+`_zap_tune` no longer calls `free_connection()` up front (it did, before knowing
+which channel it would open). Test: `tests/zap_improve_test.py`.
+
 1.14.0: skins. `resources/lib/theme.py` holds a palette per skin and the skin
 folder the layouts are loaded from; **Settings > Display > Skin** picks
 `default` (the old dark blue look, unchanged layouts) or `stbemu` (STBEmu /
