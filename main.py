@@ -178,7 +178,7 @@ def zap():
     playing, the key does what Kodi normally does.
     """
     key = ARGS.get('key', 'up')
-    state = playback.playing_context()
+    state = playback.zap_context()   # also while a just-tuned channel is opening
     if not state:
         return xbmc.executebuiltin(fallback_action(key))
     from resources.lib import overlay

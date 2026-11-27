@@ -1,4 +1,4 @@
-# Handoff (state at version 1.12.3)
+# Handoff (state at version 1.12.4)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -31,6 +31,12 @@ change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
 (a good first cleanup: convert to pytest with asserts).
 
 ## Latest work
+1.12.4: keys pressed while a just-tuned channel is still opening were lost (Kodi
+reports no video for 1-2 s, so `playing_context()` was None and the key fell back
+to Kodi's action). `playback.zap_context()` also accepts that state for 15 s after
+tuning if nothing else is playing/opening. Test: `python3 tests/zap_opening_test.py`
+(asserts, relative paths, exit code; a model for converting the other tests).
+
 1.12.3 (from a real-device log): `common.save_json/save_state` now use a temp
 file unique per process/thread (a shared `.tmp` name made concurrent writers fail:
 "TV window worker stopped: No such file ... channel_history.json.tmp").

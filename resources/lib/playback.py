@@ -435,6 +435,41 @@ def playing_context(base=None):
     return None
 
 
+TUNE_GRACE = 15   # seconds after tuning during which a still-opening channel counts
+
+
+def zap_context():
+    """playing_context(), but also while a channel we just tuned is still opening.
+
+    For a second or two after play() Kodi reports no video playing, so a remote key
+    pressed right then fell back to Kodi's own action and the press was lost. The
+    keymap only runs in fullscreen video, so if nothing else is playing and we tuned
+    a channel moments ago, the key is meant for us.
+    """
+    st = playing_context()
+    if st:
+        return st
+    st = zap_state()
+    if not st:
+        return None
+    player = xbmc.Player()
+    if player.isPlayingVideo():
+        return None           # video is up and it is not one of our live channels
+    try:
+        playing = player.getPlayingFile() if player.isPlaying() else ''
+    except RuntimeError:
+        playing = ''
+    if playing and not playing.startswith(client().base + '/live/'):
+        return None           # something else is opening (a movie, catch-up, ...)
+    try:
+        t0 = float(xbmcgui.Window(10000).getProperty(PROP_TUNE_T) or 0)
+    except ValueError:
+        t0 = 0.0
+    if time.time() - max(t0, float(st.get('t') or 0)) > TUNE_GRACE:
+        return None
+    return st
+
+
 # ----------------------------------------------- failed channel starts
 PROP_TUNE_T = common.ADDON_ID + '.tune_t'
 PROP_LIVE_OK = common.ADDON_ID + '.live_ok'      # id of the channel that started fine
