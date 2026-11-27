@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.xtreamcodes"
        name="Xtream Codes IPTV"
-       version="1.13.1"
+       version="1.13.2"
        provider-name="custom">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
@@ -17,7 +17,7 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/chisht/plugin.video.xtreamcodes</source>
-    <news>1.13.1: the background service keeps running when the box storage is full or read-only (before, it stopped until Kodi restarted), and does not retry updates every few seconds then. 1.13.0: fast remote keys.</news>
+    <news>1.13.2: the TV guide is read straight from the server into the guide database instead of being saved to storage first - far less writing to the SD card or USB stick on every update. 1.13.1: the background service survives full or read-only storage.</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>
