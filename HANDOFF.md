@@ -68,6 +68,12 @@ Kodi closes the old stream serially, so it cannot fully match STBEmu.
 Advice given: Settings > Player > Videos > Adjust display refresh rate = Off, MPEG-TS.
 
 ## Open items / ideas
+- Channel change timing on the real box (1.13.0 log, `tools/log_timing.py`): add-on
+  0.15 s, Kodi closing the old stream ~2.8 s (same from TV mode and from the
+  service, so not caused by fast keys), connect 0.2, probe 0.3, first picture 0.6;
+  total ~4 s. The close is the target: try `live_engine` = ffmpegdirect and compare.
+  One case: a 4.6 s close finished 0.06 s after the next key press arrived - watch
+  for that pattern in more logs.
 - `fix20` sometimes loses one of 4 very fast presses (banner repeats, e.g. C5, C5),
   on old and new code alike: likely a race between key-press processes reading/
   writing the zap state. Investigate.
