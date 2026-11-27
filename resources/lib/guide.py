@@ -11,7 +11,7 @@ import time
 import xbmc
 import xbmcgui
 
-from . import common, playback, reminders
+from . import common, playback, reminders, theme
 from .catalog import Catalog, live_rows
 from .epg import EPG
 
@@ -27,11 +27,33 @@ ACTION_CLOSE = (10, 92)
 ACTION_CONTEXT = (117,)
 ACTION_CH_UP, ACTION_CH_DOWN = 184, 185   # ACTION_CHANNEL_UP / ACTION_CHANNEL_DOWN
 
-_MEDIA = os.path.join(common.ADDON_PATH, 'resources', 'skins', 'default', 'media')
-TEX_NORMAL = os.path.join(_MEDIA, 'guide_btn.png')
-TEX_NOW = os.path.join(_MEDIA, 'guide_now.png')
-TEX_FOCUS = os.path.join(_MEDIA, 'guide_focus.png')
 ALIGN = 0x00000004 | 0x00000008   # XBFONT_CENTER_Y | XBFONT_TRUNCATED
+TICK = 10          # seconds between "now" line moves
+MIN_REDRAW = 25    # do not rebuild the grid twice within this many seconds
+
+
+def _star(t=None):
+    return '[COLOR %s]\u2605[/COLOR] ' % (t or theme.current()).fav
+
+
+def now_wrapped(start, now=None):
+    """True when 'now' has moved past the right edge of the time window."""
+    return (now or time.time()) >= start + SPAN
+
+
+def _media(skin):
+    return os.path.join(common.ADDON_PATH, 'resources', 'skins', skin or 'default', 'media')
+
+
+def _tex(skin):
+    """(button, on-now button, focused button) textures of a skin folder.
+
+    The programme blocks are buttons made in Python, so their colours come from
+    the theme; the textures are tiny solid PNGs in the skin's media folder.
+    """
+    media = _media(skin)
+    return (os.path.join(media, 'guide_btn.png'), os.path.join(media, 'guide_now.png'),
+            os.path.join(media, 'guide_focus.png'))
 
 
 class GuideWindow(xbmcgui.WindowXML):
@@ -51,6 +73,10 @@ class GuideWindow(xbmcgui.WindowXML):
         self._stop = threading.Event()
         self.catalog = Catalog(common.catalog_path())
         self.guide = None
+        self._theme = theme.current()
+        self._skin = theme.skin_dir(self._theme)
+        self._tex = _tex(self._skin)
+        self._drawn = 0.0        # when the grid was last rebuilt
 
     def setup(self, cat_id, select_id=None):
         self.cat_id, self.select_id = cat_id or '*', select_id
@@ -89,10 +115,16 @@ class GuideWindow(xbmcgui.WindowXML):
         threading.Thread(target=self._ticker, daemon=True).start()
 
     def _ticker(self):
+        """Move the "now" line along; only rebuild the whole grid now and then
+        (a rebuild makes hundreds of button controls)."""
         monitor = xbmc.Monitor()
-        while not self._stop.wait(30) and not monitor.abortRequested():
+        while not self._stop.wait(TICK) and not monitor.abortRequested():
             try:
-                self._update_now_line()
+                if now_wrapped(self.start):
+                    self.start = int(time.time() // SLOT * SLOT)
+                    self.draw()
+                else:
+                    self._update_now_line()
             except Exception:
                 return
 
@@ -101,6 +133,9 @@ class GuideWindow(xbmcgui.WindowXML):
         if self.buttons:
             self.removeControls(self.buttons)
         self.buttons, self.cells, self.by_id = [], [], {}
+        self._drawn = time.time()
+        t = self._theme
+        tex_normal, tex_now, tex_focus = self._tex
         now = time.time()
         end = self.start + SPAN
         lt = time.localtime(self.start)
@@ -125,7 +160,7 @@ class GuideWindow(xbmcgui.WindowXML):
             row = self.rows[ci]
             logo.setImage(row['icon'] or '')
             name = '%s  %s' % (row['num'] or ci + 1, row['name'])
-            label.setLabel(common.STAR + name if row['stream_id'] in favs else name)
+            label.setLabel(_star(t) + name if row['stream_id'] in favs else name)
             progs = self.guide.listings(row['epg_id'], self.start, end) if self.guide.ok else []
             if not progs:
                 progs = [{'start': self.start, 'stop': end, 'title': 'No programme information',
@@ -139,17 +174,17 @@ class GuideWindow(xbmcgui.WindowXML):
                     continue
                 airing = p['start'] <= now < p['stop'] or p.get('noinfo')
                 if p['stop'] <= now:
-                    colour = 'FFFFC27A' if row['archive'] else 'FF6A7488'   # catch-up / gone
+                    colour = t.catchup if row['archive'] else t.dim   # catch-up / gone
                 else:
-                    colour = 'FFE6EAF2'
+                    colour = t.text
                 title = p['title'] or 'No title'
                 if reminders.key(row['stream_id'], p['start']) in reminded:
                     title = '» ' + title
                 btn = xbmcgui.ControlButton(
                     int(x1), y, w, ROW_H - GAP, title,
-                    focusTexture=TEX_FOCUS, noFocusTexture=TEX_NOW if airing else TEX_NORMAL,
+                    focusTexture=tex_focus, noFocusTexture=tex_now if airing else tex_normal,
                     textOffsetX=12, alignment=ALIGN, font='font12',
-                    textColor=colour, focusedColor='FFFFFFFF')
+                    textColor=colour, focusedColor=t.text_sel)
                 cells.append((btn, p))
                 self.buttons.append(btn)
             row_cells.append(cells)
@@ -334,7 +369,15 @@ class GuideWindow(xbmcgui.WindowXML):
         if start():
             self._playing_key = key
 
-    def _redraw_keep(self, r, p):
+    def _redraw_keep(self, r, p, force=False):
+        """Rebuild the grid, keeping the cursor where it was.
+
+        A rebuild makes one button per programme on screen, so quick presses (a
+        reminder on, off, on...) are coalesced unless `force`."""
+        if not force and time.time() - self._drawn < MIN_REDRAW:
+            self.focus_cell(r, max(p['start'], self.start))
+            self._show_info(r, p)
+            return
         self.draw()
         self.focus_cell(r, max(p['start'], self.start))
 
@@ -386,8 +429,10 @@ class GuideWindow(xbmcgui.WindowXML):
         xbmcgui.WindowXML.close(self)
 
 
-def open_guide(cat_id='*', select_id=None, before_show=None):
-    win = GuideWindow('script-xtreamcodes-guide.xml', common.ADDON_PATH, 'default', '1080i')
+def open_guide(cat_id='*', select_id=None, before_show=None, win=None):
+    """win: reuse a GuideWindow (tests, or a caller that already made one)."""
+    if win is None:
+        win = GuideWindow(theme.GUIDE_XML, common.ADDON_PATH, theme.skin_dir(), '1080i')
     win.setup(cat_id, select_id)
     ui = xbmcgui.Window(10000)
     was_open = ui.getProperty(common.PROP_UI_OPEN)   # TV mode may be underneath

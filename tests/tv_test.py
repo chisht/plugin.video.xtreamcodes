@@ -1,8 +1,8 @@
 import os, sys, runpy, tempfile, time, json
-ADDON='/home/claude/plugin.video.xtreamcodes'
+ADDON=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ['ADDON_DIR']=ADDON; prof=tempfile.mkdtemp(); os.environ['PROFILE_DIR']=prof
 ud=tempfile.mkdtemp()
-sys.path[:0]=['/home/claude/test/stubs', ADDON]
+sys.path[:0]=[os.path.join(ADDON,'tests','stubs'), os.path.join(ADDON,'tests'), ADDON]
 import xbmcvfs; xbmcvfs.translatePath=lambda p: p.replace('special://userdata', ud)
 import fake_server, xbmcaddon, xbmcplugin, xbmcgui, xbmc
 srv=fake_server.start()

@@ -388,3 +388,19 @@ msgstr ""
 msgctxt "#30157"
 msgid "Channel up/down, numbers, Info and Guide are handled by the add-on's background service, which is already running, so the channel banner appears at once. Turn off if these keys stop working (the add-on is then started for each key press, which is slower)."
 msgstr ""
+
+msgctxt "#30160"
+msgid "Skin"
+msgstr ""
+
+msgctxt "#30161"
+msgid "Look of TV mode, the TV guide and the channel banner. STBEmu is the look of STBEmu (Stalker portal) on Android: a black background, grey text and orange highlights."
+msgstr ""
+
+msgctxt "#30162"
+msgid "Default (dark blue)"
+msgstr ""
+
+msgctxt "#30163"
+msgid "STBEmu / Stalker portal (black + orange)"
+msgstr ""

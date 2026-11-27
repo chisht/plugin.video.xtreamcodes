@@ -1,7 +1,7 @@
 import os, sys, tempfile, runpy, time
-ADDON='/home/claude/plugin.video.xtreamcodes'
+ADDON=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ['ADDON_DIR']=ADDON; prof=tempfile.mkdtemp(); os.environ['PROFILE_DIR']=prof
-sys.path[:0]=['/home/claude/test/stubs', ADDON]
+sys.path[:0]=[os.path.join(ADDON,'tests','stubs'), os.path.join(ADDON,'tests'), ADDON]
 import fake_server_live as fake_server, xbmcaddon, xbmcgui, xbmc, xbmcplugin
 fake_server.LIVE[:] = [{"num":i+1,"name":"Channel %d"%(i+1),"stream_id":5000+i,"stream_icon":"","epg_channel_id":"c%d"%i,"category_id":"1","tv_archive":0} for i in range(12)]
 fake_server.LIVE_CATS[:]=[{"category_id":"1","category_name":"G"}]

@@ -171,7 +171,8 @@ def _zap_tune(state, rows, idx, step, skip, banner=True):
             skipped += 1
             continue
         if playback.check_live(row):
-            common.log('Channel change to %s: ready to play after %.1fs' % (row['name'], time.time() - t_start))
+            common.log('Channel %s: ready to play %.1fs after the key press' % (
+                row['name'], time.time() - t_start))
             remember_zap(state['cat'], row['stream_id'], row=row)
             path, li = live_item(row)
             xbmcgui.Window(10000).clearProperty(common.ADDON_ID + '.trakt_now')

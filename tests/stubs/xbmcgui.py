@@ -38,6 +38,7 @@ def _li_init(self, label='', label2='', path='', offscreen=False):
     ListItem.__init__orig(self, label, path, offscreen); self.l2 = label2
 ListItem.__init__ = _li_init
 ListItem.setLabel2 = lambda self, v: setattr(self, 'l2', v)
+ListItem.getLabel2 = _getlabel2
 ListItem.getProperty = lambda self, k: self.props.get(k, '')
 class Action:
     def __init__(self, i): self.i = i
