@@ -234,6 +234,28 @@ def fmt_day_time(ts):
     return time.strftime('%a %d %b %H:%M', lt)
 
 
+def fmt_when(ts, now=None):
+    """'Today 21:00', 'Tomorrow 06:30', 'Yesterday 20:00' or 'Fri 21 Nov 21:00':
+    a weekday alone could be last week or next week in guide search results."""
+    now = now or time.time()
+    lt = time.localtime(ts)
+    day = time.strftime('%Y%m%d', lt)
+    for offset, word in ((0, 'Today'), (1, 'Tomorrow'), (-1, 'Yesterday')):
+        if day == time.strftime('%Y%m%d', time.localtime(now + offset * 86400)):
+            return '%s %s' % (word, time.strftime('%H:%M', lt))
+    return time.strftime('%a %d %b %H:%M', lt)
+
+
+def fmt_until(ts, now=None):
+    """'in 25 min', 'in 3 h', 'in 2 days' for something starting later."""
+    secs = max(0, ts - (now or time.time()))
+    if secs < 3600:
+        return 'in %d min' % max(1, round(secs / 60.0))
+    if secs < 2 * 86400:
+        return 'in %d h' % round(secs / 3600.0)
+    return 'in %d days' % round(secs / 86400.0)
+
+
 def _float(v):
     try:
         return float(v)

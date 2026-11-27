@@ -1,4 +1,4 @@
-# Handoff (state at version 1.13.5)
+# Handoff (state at version 1.13.6)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -31,6 +31,11 @@ change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
 (a good first cleanup: convert to pytest with asserts).
 
 ## Latest work
+1.13.6: guide search labels use `common.fmt_when` (Today/Tomorrow/Yesterday) and
+`fmt_until` ("in 25 min"), tag (on now)/(recording), and show the channel number.
+The owner clicked what looked like an upcoming result and got a recording
+playing; likely a catch-up result misread as upcoming (unconfirmed, no log).
+
 1.13.5: `playback.channel_label(row)` ("num  name") used for live ListItems and
 catch-up ("num  name: programme"; `start_catchup(..., row=)`). `PROP_RECORDING`
 remembers the catch-up being played; `playback.recording()` returns it while a

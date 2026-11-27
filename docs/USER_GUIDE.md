@@ -233,7 +233,10 @@ air now, By genre, By decade. Set **TMDb language** (for example `en-US` or
   - **Catch-up (already aired)**: newest first. OK plays the programme. Only
     channels with a TV archive appear here.
 
-  The info panel of each result says what OK will do. The context menu also
+  Each result shows the day (Today, Tomorrow, Yesterday or the date), the
+  channel number and name, and a note: **(on now)**, **(in 25 min)** for
+  upcoming ones, or **(recording)** for catch-up. The info panel of each
+  result says what OK will do. The context menu also
   has **Watch live** and **TV guide (grid)** for that channel.
 
 ## 11. Favourites, groups and channel order

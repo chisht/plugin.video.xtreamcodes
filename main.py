@@ -1083,9 +1083,15 @@ def search_epg():
 
 def _epg_hit(p, row, kind, ok_does, has_reminder):
     """One guide search result. kind: 'now', 'next' or 'past'."""
-    when = common.fmt_day_time(p['start'])
-    tag = '  [COLOR FF8A94A8](reminder set)[/COLOR]' if has_reminder else ''
-    label = '%s  %s  [COLOR FF8A94A8]- %s[/COLOR]%s' % (when, p['title'], row['name'], tag)
+    when = common.fmt_when(p['start'])
+    if kind == 'next':
+        tag = '  [COLOR FF8A94A8](%s%s)[/COLOR]' % (
+            common.fmt_until(p['start']), ', reminder set' if has_reminder else '')
+    elif kind == 'past':
+        tag = '  [COLOR FFFF9F1C](recording)[/COLOR]'
+    else:
+        tag = '  [COLOR FF4FA3FF](on now)[/COLOR]'
+    label = '%s  %s  [COLOR FF8A94A8]- %s[/COLOR]%s' % (when, p['title'], playback.channel_label(row), tag)
     q = {'action': 'epg_pick', 'id': row['stream_id'], 'start': p['start'], 'stop': p['stop'],
          'title': p['title']}
     ctx = []
