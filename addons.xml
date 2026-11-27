@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.xtreamcodes"
        name="Xtream Codes IPTV"
-       version="1.13.6"
+       version="1.14.2"
        provider-name="custom">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
@@ -17,7 +17,7 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/chisht/plugin.video.xtreamcodes</source>
-    <news>1.13.6: TV guide search results are easier to read: Today/Tomorrow/Yesterday instead of a bare time, how soon an upcoming programme starts (in 25 min), (recording) on catch-up results, and the channel number. 1.13.5: channel number in player info; Info and Guide during recordings; OK on an upcoming programme asks what to do.</news>
+    <news>1.14.2: Zapping timing fix: the online check is quick (a HEAD request, no stream opened) and a channel that just played is not checked again for 10 minutes, so switching channels no longer runs through the list checking every channel - and a check that was refused while another stream was open no longer leaves a good channel marked offline. 1.14.1: Zapping. CH+/CH- and PageUp/PageDown now work in TV mode too, and the mini player can follow the highlighted channel after a short pause (Settings &gt; TV mode &gt; Preview the highlighted channel, off by default). With "Keep the checked channel playing" (Settings &gt; Playback, on) the next channel is checked while the current one is still playing, so a channel change starts sooner. 1.14.0: Skins. Settings &gt; Display &gt; Skin picks the look of TV mode, the TV guide and the channel banner: the usual dark blue, or STBEmu / Stalker portal (black, grey text, orange highlights, narrower channel column, smaller video window). 1.13.6: TV guide search results are easier to read: Today/Tomorrow/Yesterday instead of a bare time, how soon an upcoming programme starts (in 25 min), (recording) on catch-up results, and the channel number.</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>
