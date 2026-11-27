@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.xtreamcodes"
        name="Xtream Codes IPTV"
-       version="1.13.5"
+       version="1.13.6"
        provider-name="custom">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
@@ -17,7 +17,7 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/chisht/plugin.video.xtreamcodes</source>
-    <news>1.13.5: channels and recordings show the channel number and name in the player (recordings also the programme). While a recording plays, Info shows the channel banner and Guide opens the add-on's TV guide at that channel. In TV guide search, OK on a programme that has not started asks: set a reminder, watch the channel now, or open the TV guide. 1.13.4: FFmpeg Direct fallback.</news>
+    <news>1.13.6: TV guide search results are easier to read: Today/Tomorrow/Yesterday instead of a bare time, how soon an upcoming programme starts (in 25 min), (recording) on catch-up results, and the channel number. 1.13.5: channel number in player info; Info and Guide during recordings; OK on an upcoming programme asks what to do.</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>
