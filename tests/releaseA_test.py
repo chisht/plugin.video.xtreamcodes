@@ -38,8 +38,10 @@ xbmcgui.PROPS[reminders.PROP_SLEEP]=str(time.time()-1); P.STOPPED=False; reminde
 xbmcgui.Dialog.ANSWERS=[7]; P.FILE=base+'/live/u/p%40ss/101.ts'; xbmcgui.PROPS['plugin.video.xtreamcodes.zap']=json.dumps({'cat':'*','id':'101'}); run('?action=sleep_timer'); print('end of programme ->', common.fmt_time(reminders.sleep_at()), notes())
 # reminders via guide search and service firing
 items=run('?action=search_epg&q=show 2'); print('guide search "show 2":', items[:4])
-fut=[u for u,li,f in xbmcplugin.ITEMS if 'show 2 ' in li.label or li.label.split('  ')[1].endswith('show 2')][0] if xbmcplugin.ITEMS else None
-u=[u for u,li,f in xbmcplugin.ITEMS if 'NOW' not in li.label and 'CATCH-UP' not in li.label][0]; run('?'+u.split('?',1)[1]); print('pick future programme ->', notes(), '| saved:', [(r['channel'], r['title']) for r in reminders.load()])
+rows=[(u,li) for u,li,f in xbmcplugin.ITEMS if 'action=noop' not in u]   # skip section headings
+heads=[li.label for u,li,f in xbmcplugin.ITEMS if 'action=noop' in u]
+coming=[i for i,(u,li,f) in enumerate(xbmcplugin.ITEMS) if 'Coming up' in li.label][0]
+u=xbmcplugin.ITEMS[coming+1][0]; run('?'+u.split('?',1)[1]); print('pick future programme ->', notes(), '| saved:', [(r['channel'], r['title']) for r in reminders.load()])
 print('search again shows:', [l for l in run('?action=search_epg&q=show 2') if 'reminder' in l][:1])
 r=reminders.load()[0]; r['start']=int(time.time())+30; r['stop']=r['start']+1800; common.save_json('reminders.json',[r])
 due=reminders.take_due(1); print('due within 1 min:', [d['title'] for d in due], '| left:', reminders.load())

@@ -256,13 +256,22 @@ class EPG(object):
             'ORDER BY start', (channel_id.lower(), start - MAX_LEN, start, end))
         return [dict(r) for r in rows]
 
-    def search(self, term, since, limit=300):
+    def search(self, term, since, limit=300, now=None):
+        """Programmes whose title contains `term`: (current and upcoming by start,
+        aired since `since` newest first). Limited separately, so a long catch-up
+        history cannot crowd out what is on now or coming up."""
         if not self.ok:
-            return []
-        rows = self._con.execute(
+            return [], []
+        now = int(now or time.time())
+        like = '%' + term + '%'
+        coming = self._con.execute(
             'SELECT * FROM programmes WHERE title LIKE ? AND stop > ? ORDER BY start LIMIT ?',
-            ('%' + term + '%', since, limit))
-        return [dict(r) for r in rows]
+            (like, now, limit))
+        coming = [dict(r) for r in coming]
+        aired = self._con.execute(
+            'SELECT * FROM programmes WHERE title LIKE ? AND stop <= ? AND start >= ? '
+            'ORDER BY start DESC LIMIT ?', (like, now, since, limit))
+        return coming, [dict(r) for r in aired]
 
     def programme_count(self):
         if not self.ok:

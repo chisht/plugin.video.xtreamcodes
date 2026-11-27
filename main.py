@@ -1048,42 +1048,60 @@ def search_epg():
         error('The TV guide is not downloaded yet.')
         return fail()
     now = time.time()
-    hits = guide.search(term, now - 7 * 86400)
+    coming, aired = guide.search(term, now - 7 * 86400, now=now)
     guide.close()
     from resources.lib import reminders
     reminded = reminders.keys()
-    count = 0
-    for p in hits:
+    sections = {'now': [], 'next': [], 'past': []}
+    for p in coming + aired:
         row = channels.get(p['channel'])
         if row is None:
             continue
-        past = p['stop'] <= now
-        if past and not (row['archive'] and p['start'] >= now - (row['archive_days'] or 0) * 86400):
-            continue   # aired and not available on catch-up
-        when = common.fmt_day_time(p['start'])
-        if p['start'] <= now < p['stop']:
-            tag = '[COLOR FF4FA3FF]NOW[/COLOR]'
-        elif past:
-            tag = '[COLOR FFFF9F1C]CATCH-UP[/COLOR]'
-        elif reminders.key(row['stream_id'], p['start']) in reminded:
-            tag = '[COLOR FF8A94A8]reminder set[/COLOR]'
+        if p['stop'] <= now:
+            if not (row['archive'] and p['start'] >= now - (row['archive_days'] or 0) * 86400):
+                continue   # aired and not available on catch-up
+            sections['past'].append((p, row))
         else:
-            tag = ''
-        label = '%s  %s  [COLOR FF8A94A8]- %s[/COLOR]  %s' % (when, p['title'], row['name'], tag)
-        add_item(label, {'action': 'epg_pick', 'id': row['stream_id'], 'start': p['start'],
-                         'stop': p['stop'], 'title': p['title']},
-                 art=art_for(row['icon']),
-                 info={'title': p['title'], 'plot': '%s - %s  %s\n\n%s' % (
-                     when, common.fmt_time(p['stop']), row['name'], p.get('descr') or ''),
-                     'mediatype': 'video'}, folder=False)
-        count += 1
+            sections['now' if p['start'] <= now else 'next'].append((p, row))
+    count = 0
+    for key, heading, ok_does in (('now', 'On now', 'OK: watch live'),
+                                  ('next', 'Coming up', 'OK: set or remove a reminder'),
+                                  ('past', 'Catch-up (already aired)', 'OK: watch this programme')):
+        if not sections[key]:
+            continue
+        add_item('[B][COLOR FF8A94A8]%s[/COLOR][/B]' % heading, {'action': 'noop'}, folder=False)
+        for p, row in sections[key]:
+            _epg_hit(p, row, key, ok_does, reminders.key(row['stream_id'], p['start']) in reminded)
+            count += 1
     if not count:
         add_item('[COLOR grey]Nothing found for "%s"[/COLOR]' % term, {'action': 'noop'}, folder=False)
     end('videos')
 
 
+def _epg_hit(p, row, kind, ok_does, has_reminder):
+    """One guide search result. kind: 'now', 'next' or 'past'."""
+    when = common.fmt_day_time(p['start'])
+    tag = '  [COLOR FF8A94A8](reminder set)[/COLOR]' if has_reminder else ''
+    label = '%s  %s  [COLOR FF8A94A8]- %s[/COLOR]%s' % (when, p['title'], row['name'], tag)
+    q = {'action': 'epg_pick', 'id': row['stream_id'], 'start': p['start'], 'stop': p['stop'],
+         'title': p['title']}
+    ctx = []
+    if kind == 'now':
+        if row['archive']:
+            ctx.append(('Watch from the beginning', 'RunPlugin(%s)' % build_url(**dict(q, do='restart'))))
+    elif kind == 'next':
+        ctx.append(('Remove reminder' if has_reminder else 'Set reminder', 'RunPlugin(%s)' % build_url(**q)))
+    ctx.append(('Watch %s live' % row['name'], 'RunPlugin(%s)' % build_url(**dict(q, do='live'))))
+    ctx.append(('TV guide (grid)', 'RunPlugin(%s)' % build_url(action='grid', id=row['stream_id'])))
+    add_item(label, q, art=art_for(row['icon']), context=ctx,
+             info={'title': p['title'], 'plot': '[B]%s[/B][CR]%s - %s  %s[CR][CR]%s' % (
+                 ok_does, when, common.fmt_time(p['stop']), row['name'], p.get('descr') or ''),
+                 'mediatype': 'video'}, folder=False)
+
+
 def epg_pick():
-    """A guide search result: watch, catch-up, or set a reminder."""
+    """A guide search result: on now -> watch live (restart is in the context
+    menu, as in TV mode and the grid guide), aired -> catch-up, later -> reminder."""
     from resources.lib import reminders
     catalog = Catalog(common.catalog_path())
     row = catalog.get('live', ARGS['id'])
@@ -1092,14 +1110,14 @@ def epg_pick():
         return
     p = {'start': int(ARGS['start']), 'stop': int(ARGS['stop']), 'title': ARGS.get('title', '')}
     now = time.time()
+    cat = playback.own_group(row)
+    do = ARGS.get('do')
+    if do == 'live':
+        return playback.start_live(row, cat)
+    if do == 'restart' and row['archive']:
+        return playback.restart(row, cat)
     if p['start'] <= now < p['stop']:
-        choice = 0
-        if row['archive']:
-            choice = xbmcgui.Dialog().contextmenu(['Watch live', 'Watch from the beginning'])
-            if choice < 0:
-                return
-        cat = playback.own_group(row)
-        return playback.restart(row, cat) if choice == 1 else playback.start_live(row, cat)
+        return playback.start_live(row, cat)
     if p['stop'] <= now:
         return playback.play_programme(row, p)
     reminders.toggle(row, p)

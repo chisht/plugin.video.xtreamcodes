@@ -27,6 +27,15 @@ def has_ffmpegdirect():
     return xbmc.getCondVisibility('System.HasAddon(inputstream.ffmpegdirect)')
 
 
+PROP_FFD_OK = common.ADDON_ID + '.ffd_ok'          # ffmpegdirect played a channel this session
+PROP_FFD_FAILED = common.ADDON_ID + '.ffd_failed'  # ffmpegdirect is unusable: use Kodi's player
+
+
+def use_ffmpegdirect():
+    return (common.setting_int('live_engine') == 1 and has_ffmpegdirect()
+            and not xbmcgui.Window(10000).getProperty(PROP_FFD_FAILED))
+
+
 def play_item(url, kind='file', info=None, label='', live=False):
     """Build a playable ListItem. kind: 'ts' | 'hls' | 'file'. Returns (path, li)."""
     headers = common.kodi_header_string()
@@ -42,9 +51,8 @@ def play_item(url, kind='file', info=None, label='', live=False):
         li = xbmcgui.ListItem(label, path=path, offscreen=True)
         if kind == 'ts':
             li.setMimeType('video/mp2t')
-            if live and common.setting_int('live_engine') == 1 and has_ffmpegdirect():
+            if live and use_ffmpegdirect():
                 li.setProperty('inputstream', 'inputstream.ffmpegdirect')
-                li.setProperty('inputstreamaddon', 'inputstream.ffmpegdirect')
                 li.setProperty('inputstream.ffmpegdirect.is_realtime_stream', 'true')
                 li.setProperty('inputstream.ffmpegdirect.stream_mode', 'timeshift')
                 li.setProperty('inputstream.ffmpegdirect.manifest_type', 'ts')
@@ -496,6 +504,8 @@ class LiveRecovery(xbmc.Player):
             # Remember which channel started, and when: a late callback from the
             # channel before can arrive just after the next one was tuned.
             xbmcgui.Window(10000).setProperty(PROP_LIVE_OK, '%s|%f' % (st['id'], time.time()))
+            if use_ffmpegdirect():
+                xbmcgui.Window(10000).setProperty(PROP_FFD_OK, '1')
 
     def onPlayBackError(self):
         self._failed(error=True)
@@ -545,6 +555,13 @@ class LiveRecovery(xbmc.Player):
         monitor = xbmc.Monitor()
         monitor.waitForAbort(0.4)
         xbmc.executebuiltin('Dialog.Close(okdialog,true)')   # Kodi's "playback failed"
+        if use_ffmpegdirect() and not win.getProperty(PROP_FFD_OK):
+            # The experimental engine has not played anything yet this session (on
+            # some boxes it cannot even load): use Kodi's own player from now on.
+            win.setProperty(PROP_FFD_FAILED, '1')
+            win.clearProperty(PROP_RETRIED)
+            common.log('inputstream.ffmpegdirect failed before playing anything: using Kodi\'s player')
+            common.notify('FFmpeg Direct did not work - using Kodi\'s player instead', 5000)
         if win.getProperty(PROP_RETRIED) != st['id']:
             win.setProperty(PROP_RETRIED, st['id'])
             common.log('%s failed to start: trying once more' % row['name'])
