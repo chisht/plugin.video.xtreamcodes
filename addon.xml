@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.xtreamcodes"
        name="Xtream Codes IPTV"
-       version="1.13.2"
+       version="1.13.3"
        provider-name="custom">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
@@ -16,7 +16,7 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/chisht/plugin.video.xtreamcodes</source>
-    <news>1.13.2: the TV guide is read straight from the server into the guide database instead of being saved to storage first - far less writing to the SD card or USB stick on every update. 1.13.1: the background service survives full or read-only storage.</news>
+    <news>1.13.3: clearer TV guide search - results in sections (On now, Coming up, Catch-up), OK on a programme that is on now plays it live, and what is on now or coming up is no longer pushed out by old programmes. If the experimental FFmpeg Direct player cannot play, Kodi's player is used automatically. 1.13.2: less writing to storage during guide updates.</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>

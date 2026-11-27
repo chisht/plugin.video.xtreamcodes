@@ -219,9 +219,17 @@ air now, By genre, By decade. Set **TMDb language** (for example `en-US` or
 - **Search** looks through channels, movies and series. Earlier searches are
   kept. Remove one, or clear the history, from the context menu.
 - **Search the TV guide** finds programmes by title across all channels.
-  Results are tagged **NOW**, **CATCH-UP** (already aired, still in the
-  archive) or **reminder set**. Pick one to watch it, catch up, or set a
-  reminder.
+  Main menu → **Search the TV guide** → **New search...**, type part of a
+  title (for example `news` or `simpsons`). Results come in three sections:
+  - **On now**: OK watches the channel live. On catch-up channels, the context
+    menu has **Watch from the beginning**.
+  - **Coming up**: OK sets a reminder (or removes it). "(reminder set)" shows
+    on those you already picked.
+  - **Catch-up (already aired)**: newest first. OK plays the programme. Only
+    channels with a TV archive appear here.
+
+  The info panel of each result says what OK will do. The context menu also
+  has **Watch live** and **TV guide (grid)** for that channel.
 
 ## 11. Favourites, groups and channel order
 
@@ -311,6 +319,8 @@ anywhere.
 - *If a channel fails to start, retry once, then go back*.
 - *Channel up/down: wait before tuning*: see [fast channel switching](#5-watching-live-tv-fullscreen-remote-keys).
 - *Live TV player engine*: Kodi default, or inputstream.ffmpegdirect (experimental).
+  If FFmpeg Direct cannot play anything (on some boxes it does not even load),
+  the add-on switches back to Kodi's player by itself and tells you.
 - *Close the current stream before opening the next*: keep this on if your plan
   allows only one connection.
 - *Check channel is online before playing*, *Online check timeout*, *When Up/Down

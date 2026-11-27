@@ -1,4 +1,4 @@
-# Handoff (state at version 1.13.2)
+# Handoff (state at version 1.13.3)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -31,6 +31,20 @@ change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
 (a good first cleanup: convert to pytest with asserts).
 
 ## Latest work
+1.13.3: guide search reworked. `EPG.search()` returns (coming, aired) queried and
+limited separately (before: one list from 7 days ago, oldest first, LIMIT 300
+before filtering, so now/upcoming could be cut off). Results in sections On now /
+Coming up / Catch-up (newest first); `epg_pick` plays live on OK for "now" (restart
+via context menu `do=restart`), consistent with TV mode and the grid guide.
+FFmpeg Direct: on the real box the installed inputstream.ffmpegdirect cannot load
+(built against libavcodec.so.63; box has FFmpeg 8.0.1), so every channel failed.
+`LiveRecovery._failed` now sets `PROP_FFD_FAILED` if ffmpegdirect has not played
+anything this session, and `play_item` stops using it. Deprecated
+`inputstreamaddon` property removed. Test: `tests/epg_search_test.py`.
+Debug-log timings with fast keys: key -> banner 0.3 s; Kodi closing the old stream
+still ~2.9 s (not caused by the banner; Kodi also saves watched state and the
+skin's helper scripts refresh widgets on every channel change).
+
 1.13.2: EPG streamed from the HTTP response straight into `epg.build_db`
 (`xtream.open_xmltv()`, `epg._Reader` peeks for gzip and counts bytes), so the XML
 is never written to storage. If the network read fails part-way
@@ -92,7 +106,6 @@ Advice given: Settings > Player > Videos > Adjust display refresh rate = Off, MP
   on old and new code alike: likely a race between key-press processes reading/
   writing the zap state. Investigate.
 - Check real-device timing logs for the new zap path; tune `zap_debounce`.
-- TV guide search (`epg_pick`) still shows the live/restart popup.
 - Movies/series episodes do not get the "Starting..." note.
 - Own Trakt app keys vs. user-supplied keys; Stalker portal support (needs portal format).
 - Add a licence (owner to choose) before making the repo public; the Kodi
