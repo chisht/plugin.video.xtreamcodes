@@ -25,6 +25,10 @@ KEYMAP_DIR = 'special://userdata/keymaps/'
 FILENAME = 'zz_%s.xml' % common.ADDON_ID          # sorts after other keymaps
 OLD_FILENAMES = ('%s.xml' % common.ADDON_ID,)     # versions up to 1.11
 ZAP = 'RunPlugin(plugin://%s/?action=zap&amp;key=%s%s)'
+# Fast mode: tell the running service (no add-on start per key press).
+NOTIFY = 'NotifyAll(%s,%s%s.%s)'
+NOTIFY_PREFIX = 'zap.'           # message 'zap.<section>.<key name>'
+_FALLBACKS = {}                  # (section, key name) -> other keymap's action
 
 DIGIT_NAMES = ('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine')
 NUMPAD_NAMES = tuple('numpad' + n for n in DIGIT_NAMES)
@@ -77,13 +81,39 @@ def other_mappings():
     return found
 
 
-def build(restart):
+def fast_keys():
+    return common.setting_bool('zap_fast')
+
+
+def resolve(message):
+    """NotifyAll message from the keymap -> (key, digit, fallback) or None."""
+    if not message.startswith(NOTIFY_PREFIX):
+        return None
+    section, _, name = message[len(NOTIFY_PREFIX):].partition('.')
+    for sec, nm, zap in _keys(True):
+        if (sec, nm) == (section, name):
+            key, _, d = zap.partition('&amp;d=')
+            if not _FALLBACKS:
+                _FALLBACKS.update(other_mappings())
+                _FALLBACKS.setdefault(None, None)   # mark as loaded
+            return key, d or '0', _FALLBACKS.get((section, name))
+    return None
+
+
+def build(restart, fast=False):
     others = other_mappings()
+    _FALLBACKS.clear()
+    _FALLBACKS.update(others)
+    _FALLBACKS.setdefault(None, None)
     sections = {'keyboard': [], 'remote': []}
     for section, name, zap in _keys(restart):
-        fb = others.get((section, name))
-        extra = '&amp;fb=%s' % urllib.parse.quote(fb, safe='') if fb else ''
-        sections[section].append('      <%s>%s</%s>' % (name, ZAP % (common.ADDON_ID, zap, extra), name))
+        if fast:
+            action = NOTIFY % (common.ADDON_ID, NOTIFY_PREFIX, section, name)
+        else:
+            fb = others.get((section, name))
+            extra = '&amp;fb=%s' % urllib.parse.quote(fb, safe='') if fb else ''
+            action = ZAP % (common.ADDON_ID, zap, extra)
+        sections[section].append('      <%s>%s</%s>' % (name, action, name))
     return ('<?xml version="1.0" encoding="UTF-8"?>\n'
             '<!-- Created by %s. Turn off "Up/Down changes channel" in its settings to remove. -->\n'
             '<keymap>\n  <FullscreenVideo>\n    <keyboard>\n%s\n    </keyboard>\n'
@@ -101,7 +131,7 @@ def apply():
             changed = True
     path = _path()
     if common.setting_bool('zap_enable'):
-        content = build(common.setting_bool('zap_restart_key'))
+        content = build(common.setting_bool('zap_restart_key'), fast_keys())
         try:
             with open(path, 'r', encoding='utf-8') as f:
                 same = f.read() == content

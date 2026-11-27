@@ -14,4 +14,4 @@ Rules (set by the owner):
 - Bump `version` in `addon.xml` for each release; run `./build.sh` to package,
   `./publish_repo.sh` to push it to the Kodi repository (`kodi-repo` branch).
 - New user-facing strings go in `resources/language/resource.language.en_gb/strings.po`
-  (highest id in use: 30155) and settings in `resources/settings.xml`.
+  (highest id in use: 30157) and settings in `resources/settings.xml`.

@@ -380,3 +380,11 @@ msgstr ""
 msgctxt "#30155"
 msgid "inputstream.ffmpegdirect (experimental)"
 msgstr ""
+
+msgctxt "#30156"
+msgid "Fast remote keys (handled by the background service)"
+msgstr ""
+
+msgctxt "#30157"
+msgid "Channel up/down, numbers, Info and Guide are handled by the add-on's background service, which is already running, so the channel banner appears at once. Turn off if these keys stop working (the add-on is then started for each key press, which is slower)."
+msgstr ""

@@ -16,7 +16,7 @@ S.update(server='http://127.0.0.1:%d' % srv.server_address[1], username='u', pas
 from resources.lib import sync, playback, overlay
 from resources.lib.catalog import Catalog, live_rows
 sync.run_sync('full'); P = xbmc.Player
-overlay.show_banner = lambda *a, **k: None
+overlay.show_banner = lambda row, extra='', during=None: during and during()
 
 def press(key='up'):
     xbmc.BUILTINS.clear()

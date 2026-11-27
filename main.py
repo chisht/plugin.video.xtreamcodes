@@ -10,7 +10,6 @@ import os
 import sys
 import time
 import urllib.parse
-import uuid
 
 import xbmc
 import xbmcgui
@@ -18,7 +17,7 @@ import xbmcplugin
 
 from resources.lib import common, sync
 from resources.lib import library, playback, tmdb, trakt, watching
-from resources.lib.playback import play_item, live_item, remember_zap
+from resources.lib.playback import play_item
 from resources.lib.catalog import Catalog, build_catalog, live_rows
 from resources.lib.epg import EPG
 from resources.lib.xtream import XtreamClient, XtreamError, b64_text
@@ -150,199 +149,10 @@ def play_live():
     playback.start_live(row, cat_id)
 
 
-ZAP_FALLBACK = {'up': 'Action(ChapterOrBigStepForward)', 'down': 'Action(ChapterOrBigStepBack)',
-                'chup': 'Action(SkipNext)', 'chdown': 'Action(SkipPrevious)',
-                'restart': 'Action(Rewind)', 'recall': 'Action(Number0)',
-                'guide': 'ActivateWindow(TVGuide)', 'info': 'Action(Info)'}
-
-
-def fallback_action(key):
-    """What the key does when none of our channels is playing.
-
-    'fb' carries the mapping another add-on's keymap had for this key (e.g. Xstream
-    Pro's own channel-number entry); otherwise Kodi's normal action.
-    """
-    fb = ARGS.get('fb')
-    if fb:
-        return fb if '(' in fb else 'Action(%s)' % fb
-    if key == 'digit':
-        return 'Action(Number%s)' % ARGS.get('d', '0')
-    return ZAP_FALLBACK.get(key, 'Noop')
-
-
 def zap():
-    """Remote keys in fullscreen video (called from the keymap).
-
-    up/down/chup/chdown: change channel; restart: current show from its beginning;
-    recall: previous channel; guide: grid guide. When none of our live channels is
-    playing, the key does what Kodi normally does.
-    """
-    key = ARGS.get('key', 'up')
-    state = playback.zap_context()   # also while a just-tuned channel is opening
-    if not state:
-        return xbmc.executebuiltin(fallback_action(key))
-    from resources.lib import overlay
-    if key == 'digit':
-        return fullscreen_digit(state, ARGS.get('d', '0'))
-    if key == 'recall':
-        row = playback.recall()
-        if row is not None:
-            overlay.show_banner(row, 'Previous channel')
-        return
-    if key == 'info':
-        catalog = Catalog(common.catalog_path())
-        row = catalog.get('live', state['id'])
-        catalog.close()
-        if row is not None:
-            overlay.show_banner(row)
-        return
-    if key == 'guide':
-        from resources.lib.guide import open_guide
-        return open_guide(state.get('cat') or '*', state.get('id'))
-    if key == 'restart':
-        if state.get('mode') == 'restart' or not common.setting_bool('zap_restart_key'):
-            return xbmc.executebuiltin(fallback_action('restart'))   # already replaying: rewind
-        catalog = Catalog(common.catalog_path())
-        row = catalog.get('live', state['id'])
-        catalog.close()
-        if row is None or not row['archive']:
-            return xbmc.executebuiltin(fallback_action('restart'))
-        return playback.restart(row, state.get('cat'), confirm=True)
-    player = xbmc.Player()
-    step = 1 if key in ('up', 'chup') else -1
-    if key in ('up', 'down') and common.setting_bool('zap_reverse'):
-        step = -step
-    catalog = Catalog(common.catalog_path())
-    rows = live_rows(catalog, state['cat'])
-    catalog.close()
-    if not rows:
-        return
-    ids = [r['stream_id'] for r in rows]
-    cursor = state.get('cursor') or state['id']
-    idx = ids.index(cursor) if cursor in ids else (ids.index(state['id']) if state['id'] in ids else 0)
-    skip = common.setting_int('offline_zap') == 0   # 0 = skip to next working, 1 = stay
-    delay = common.setting_int('zap_debounce', 6) / 10.0
-    # Pressing again soon after a channel change means "keep going": show each
-    # channel at once but only tune the one you stop on, instead of opening and
-    # closing every channel in between (each takes seconds to close).
-    burst = delay > 0 and time.time() - state.get('t', 0) < ZAP_BURST
-    if burst:
-        return _zap_burst(state, rows, idx, step, skip, delay)
-    return _zap_tune(state, rows, idx, step, skip)
-
-
-ZAP_BURST = 4.0                                   # seconds since the last channel change
-PROP_PRESS = common.ADDON_ID + '.zap_press'       # token of the newest key press
-
-
-def _zap_burst(state, rows, idx, step, skip, delay):
-    from resources.lib import overlay
-    target = None
-    for attempt in range(1, min(len(rows), 30) + 1):
-        pos = (idx + step * attempt) % len(rows)
-        row = rows[pos]
-        if row['stream_id'] == state['id']:
-            break
-        if skip and playback.is_offline(row['stream_id']):
-            continue
-        target = (pos, row)
-        break
-    if target is None:
-        return _zap_tune(state, rows, idx, step, skip)
-    pos, row = target
-    win = xbmcgui.Window(10000)
-    token = uuid.uuid4().hex
-    win.setProperty(PROP_PRESS, token)
-    # The next press continues from this channel, even though it is not tuned yet.
-    remember_zap(state['cat'], state['id'], cursor=row['stream_id'])
-
-    def after_quiet():
-        monitor = xbmc.Monitor()
-        end = time.time() + delay
-        while time.time() < end:
-            if win.getProperty(PROP_PRESS) != token or monitor.waitForAbort(0.05):
-                return                      # a newer key press took over
-        if win.getProperty(PROP_PRESS) == token:
-            _zap_tune(state, rows, (pos - step) % len(rows), step, skip, banner=False)
-    overlay.show_banner(row, '%d of %d' % (pos + 1, len(rows)), during=after_quiet)
-
-
-def _zap_tune(state, rows, idx, step, skip, banner=True):
-    """Tune the next working channel after position `idx`."""
-    from resources.lib import overlay
-    player = xbmc.Player()
-    cursor = state.get('cursor') or state['id']
-    skipped = 0
-    t_start = time.time()
-    stopped = playback.free_connection()
-    for attempt in range(1, min(len(rows), 30) + 1):
-        pos = (idx + step * attempt) % len(rows)
-        row = rows[pos]
-        if row['stream_id'] == state['id']:
-            break   # went all the way round
-        if skip and playback.is_offline(row['stream_id']):
-            skipped += 1
-            continue
-        if playback.check_live(row):
-            common.log('Channel change to %s: ready to play after %.1fs' % (row['name'], time.time() - t_start))
-            remember_zap(state['cat'], row['stream_id'], row=row)
-            path, li = live_item(row)
-            xbmcgui.Window(10000).clearProperty(common.ADDON_ID + '.trakt_now')
-            xbmcgui.Window(10000).setProperty(playback.PROP_TUNE_T, '%f' % t_start)
-            player.play(path, li)
-            extra = '%d of %d' % (pos + 1, len(rows))
-            if skipped:
-                extra += '   -   skipped %d offline' % skipped
-            if banner:
-                overlay.show_banner(row, extra)
-            return
-        if not skip:
-            # Stay on the current channel; the next press continues past this one.
-            playback.offline_notice(row['name'])
-            if stopped:   # it was closed to free the connection: resume it
-                current = next((r for r in rows if r['stream_id'] == state['id']), None)
-                if current is not None:
-                    path, li = live_item(current)
-                    player.play(path, li)
-            remember_zap(state['cat'], state['id'], cursor=row['stream_id'])
-            return
-        skipped += 1
-    common.notify('No working channel found nearby', 3000)
-    if stopped:   # nothing better found: go back to what was playing
-        current = next((r for r in rows if r['stream_id'] == state['id']), None)
-        if current is not None:
-            path, li = live_item(current)
-            player.play(path, li)
-
-
-def fullscreen_digit(state, d):
-    """Channel numbers typed while watching fullscreen; a lone 0 recalls."""
-    from resources.lib import overlay
-    catalog = Catalog(common.catalog_path())
-    group = live_rows(catalog, state.get('cat') or '*')
-
-    def lookup(n):
-        for i, r in enumerate(group):
-            if (r['num'] or (i + 1)) == n:
-                return r
-        return catalog.find_live_num(n)
-
-    try:
-        what, n = overlay.digit(d, lookup)
-        row = lookup(n) if what == 'tune' else None
-    finally:
-        catalog.close()
-    if what == 'recall':
-        row = playback.recall()
-        if row is not None:
-            overlay.show_banner(row, 'Previous channel')
-    elif what == 'tune':
-        if row is None:
-            return common.notify('No channel %d' % n, 2500)
-        in_group = any(r['stream_id'] == row['stream_id'] for r in group)
-        if playback.start_live(row, state.get('cat') if in_group else playback.own_group(row),
-                               announce=False):
-            overlay.show_banner(row)
+    """Remote keys in fullscreen video (keymap -> RunPlugin); see zapper.handle."""
+    from resources.lib import zapper
+    zapper.handle(ARGS.get('key', 'up'), ARGS.get('d', '0'), ARGS.get('fb'))
 
 
 def play_catchup():

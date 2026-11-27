@@ -135,6 +135,16 @@ channel's banner shows straight away, but only the channel you stop on is
 opened. The waiting time is set by **Settings → Playback → Channel up/down: wait
 before tuning** (in tenths of a second; 0 turns it off).
 
+**Fast remote keys.** The keys are handled by the add-on's background service,
+which is already running, so the banner appears straight away. If the channel
+keys ever stop working, turn off **Settings → Playback → Fast remote keys**: the
+add-on is then started for each key press instead (slower, about a second on
+small boxes).
+
+After the banner, the picture usually takes another 1 to 3 seconds (sometimes
+up to 8 on busy channels): that is Kodi closing the old stream and your
+provider sending the new one.
+
 **When a channel fails.** Offline channels show a short notice instead of
 Kodi's error. If a channel fails to start, the add-on tries once more and then
 goes back to the channel you were watching. Offline channels are greyed out for
@@ -296,6 +306,7 @@ anywhere.
 - *Live stream format*: MPEG-TS (.ts, recommended) or HLS (.m3u8).
 - *Use InputStream Adaptive for HLS*.
 - *Up/Down changes channel while watching live TV*, *Reverse Up/Down direction*.
+- *Fast remote keys (handled by the background service)*: on by default.
 - *Rewind button restarts the current show*.
 - *If a channel fails to start, retry once, then go back*.
 - *Channel up/down: wait before tuning*: see [fast channel switching](#5-watching-live-tv-fullscreen-remote-keys).

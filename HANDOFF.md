@@ -1,4 +1,4 @@
-# Handoff (state at version 1.12.4)
+# Handoff (state at version 1.13.0)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -31,6 +31,18 @@ change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
 (a good first cleanup: convert to pytest with asserts).
 
 ## Latest work
+1.13.0: fast remote keys. Zap logic moved from main.py to `resources/lib/zapper.py`
+(`handle(key, d, fb)`). With setting `zap_fast` (default on) the keymap sends
+`NotifyAll(plugin.video.xtreamcodes,zap.<section>.<key>)`; `service.KeyListener`
+(own thread, since Kodi delivers Monitor callbacks to the creating thread while it
+waits in waitForAbort) resolves it via `keymap.resolve()` and runs zapper in a
+thread per press. Saves starting the add-on per key (interpreter + compiling
+main.py + imports, ~1 s on Amlogic). Off = old RunPlugin keymap. `_zap_tune` now
+shows the banner first and calls play() from the banner's `during` callback.
+Not yet verified on the real box: check that keys work and the banner is instant.
+Tests: `tests/fast_keys_test.py`, `tests/zap_opening_test.py`, `tests/svc_test.py`
+(now relative paths).
+
 1.12.4: keys pressed while a just-tuned channel is still opening were lost (Kodi
 reports no video for 1-2 s, so `playing_context()` was None and the key fell back
 to Kodi's action). `playback.zap_context()` also accepts that state for 15 s after

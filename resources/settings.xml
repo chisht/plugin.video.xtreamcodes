@@ -84,6 +84,14 @@
           </dependencies>
           <control type="toggle"/>
         </setting>
+        <setting id="zap_fast" type="boolean" label="30156" help="30157">
+          <level>0</level>
+          <default>true</default>
+          <dependencies>
+            <dependency type="enable" setting="zap_enable">true</dependency>
+          </dependencies>
+          <control type="toggle"/>
+        </setting>
         <setting id="zap_restart_key" type="boolean" label="30053" help="30054">
           <level>0</level>
           <default>true</default>

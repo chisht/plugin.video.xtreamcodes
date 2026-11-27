@@ -2,6 +2,7 @@
 """Background service: keeps channel lists and the full EPG up to date."""
 import hashlib
 import os
+import threading
 import time
 import traceback
 
@@ -91,6 +92,47 @@ class Monitor(xbmc.Monitor):
         self.settings_changed = True
 
 
+class KeyListener(xbmc.Monitor):
+    """Remote keys in fullscreen live TV, sent by the keymap with NotifyAll.
+
+    The service is already running with everything loaded, so the channel banner
+    appears at once instead of after starting the add-on for every key press.
+    Kodi only delivers a Monitor's callbacks to the thread that created it, while
+    that thread waits in waitForAbort(), so this runs in a thread of its own: key
+    presses are handled even while the main loop is busy with a long update.
+    """
+
+    def onNotification(self, sender, method, data):
+        if sender != common.ADDON_ID or not method.startswith('Other.'):
+            return
+        hit = keymap.resolve(method[len('Other.'):])
+        if hit is None:
+            return
+        key, d, fb = hit
+        # each press in its own thread, like separate add-on calls: the banner
+        # holds its thread for a few seconds and a newer press takes over
+        threading.Thread(target=self._handle, args=(key, d, fb), daemon=True).start()
+
+    @staticmethod
+    def _handle(key, d, fb):
+        from resources.lib import zapper
+        try:
+            zapper.handle(key, d, fb)
+        except Exception:
+            common.log('Key %s failed: %s' % (key, traceback.format_exc()), xbmc.LOGERROR)
+
+
+def listen_keys():
+    listener = KeyListener()
+    win = xbmcgui.Window(10000)
+    win.setProperty(common.ADDON_ID + '.keys_ready', '1')
+    try:
+        while not listener.waitForAbort(1):
+            pass
+    finally:
+        win.clearProperty(common.ADDON_ID + '.keys_ready')
+
+
 def apply_keymap():
     try:
         keymap.apply()
@@ -121,6 +163,7 @@ def run():
     monitor = Monitor()
     scrobbler = trakt.Scrobbler()   # keep a reference: it receives playback callbacks
     recovery = playback.LiveRecovery()   # retries channels that fail to start
+    threading.Thread(target=listen_keys, name='keys', daemon=True).start()
     reminders.clean_temp_files()
     apply_keymap()
     win = xbmcgui.Window(10000)
