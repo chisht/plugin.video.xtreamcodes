@@ -154,6 +154,13 @@ class XtreamClient(object):
         data = self._api(action='get_simple_data_table', stream_id=stream_id)
         return _as_list((data or {}).get('epg_listings')) if isinstance(data, dict) else []
 
+    def open_xmltv(self):
+        """(response, size in bytes or 0) for reading the guide straight from the server."""
+        url = self.base + '/xmltv.php?' + urllib.parse.urlencode(
+            {'username': self.username, 'password': self.password})
+        resp = self._open(url, timeout=max(self.timeout, 120))
+        return resp, int(resp.headers.get('Content-Length') or 0)
+
     def download_xmltv(self, dest_base, progress=None, abort=None):
         """Stream xmltv.php to disk. Returns the path written (.xml or .xml.gz)."""
         url = self.base + '/xmltv.php?' + urllib.parse.urlencode(

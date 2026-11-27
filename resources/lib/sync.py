@@ -36,16 +36,34 @@ def run_sync(mode='full', progress=None, abort=None):
 
     xml_path = None
     if do_epg:
-        base = common.profile_file('xmltv.xml')
-        xml_path = client.download_xmltv(base, _sub(progress, 40, 70), abort)
+        offset = common.setting_int('epg_offset', 0)
+        past = common.setting_int('epg_past_days', 7)
+        # Read the guide straight from the server into the database: saving the
+        # XML first wrote hundreds of MB to storage on every update. (If the server
+        # cannot be reached or refuses, that error is reported as before.)
+        resp, size = client.open_xmltv()
         try:
-            offset = common.setting_int('epg_offset', 0)
-            result['programmes'] = epg.build_db(
-                xml_path, common.epg_path(), common.setting_int('epg_past_days', 7),
-                _sub(progress, 70, 98), abort, offset_min=offset)
-            result['epg_offset'] = offset
-        except ValueError as e:
-            raise XtreamError(str(e))
+            try:
+                result['programmes'] = epg.build_db(
+                    resp, common.epg_path(), past, _sub(progress, 40, 98), abort,
+                    offset_min=offset, total=size)
+            finally:
+                resp.close()
+        except common.Aborted:
+            raise
+        except (ValueError,) + epg.STREAM_ERRORS as e:
+            # Connection dropped or slow server: once more the old way, saving
+            # the file first so the download does not wait for the processing.
+            common.log('EPG streaming failed (%s); downloading it first instead' % e)
+            base = common.profile_file('xmltv.xml')
+            xml_path = client.download_xmltv(base, _sub(progress, 40, 70), abort)
+            try:
+                result['programmes'] = epg.build_db(
+                    xml_path, common.epg_path(), past, _sub(progress, 70, 98), abort,
+                    offset_min=offset)
+            except ValueError as e:
+                raise XtreamError(str(e))
+        result['epg_offset'] = offset
 
     if xml_path and os.path.exists(xml_path):
         os.remove(xml_path)   # parsed into epg.db; no need to keep it

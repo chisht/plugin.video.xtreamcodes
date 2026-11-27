@@ -3,12 +3,14 @@
 import calendar
 import datetime
 import gzip
+import http.client
 import os
 import sqlite3
 import threading
 import time
 import uuid
 import xml.etree.ElementTree as ET
+import zlib
 
 from . import common
 
@@ -59,17 +61,72 @@ def _ui_busy():
         return False
 
 
-def build_db(xml_path, db_path, past_days=7, progress=None, abort=None, offset_min=0):
+class StreamError(Exception):
+    """Reading the guide from the network failed part-way (not a storage error)."""
+
+
+# a guide cut off or garbled in transit (gzip complains in its own ways)
+STREAM_ERRORS = (StreamError, EOFError, gzip.BadGzipFile, zlib.error)
+
+
+class _Reader(object):
+    """Counts bytes read and lets us peek at the first ones, for a file or a
+    network stream alike (a stream cannot seek back after the gzip check)."""
+
+    def __init__(self, raw):
+        self.raw = raw
+        self.pos = 0
+        self._head = b''
+
+    def _raw_read(self, n=-1):
+        try:
+            return self.raw.read(n) if n is not None and n >= 0 else self.raw.read()
+        except (OSError, http.client.HTTPException) as e:
+            raise StreamError(str(e) or e.__class__.__name__)
+
+    def peek(self, n):
+        while len(self._head) < n:
+            chunk = self._raw_read(n - len(self._head))
+            if not chunk:
+                break
+            self._head += chunk
+        return self._head[:n]
+
+    def read(self, n=-1):
+        if n is None or n < 0:
+            data, self._head = self._head + self._raw_read(), b''
+        elif self._head:
+            data, self._head = self._head[:n], self._head[n:]
+            if len(data) < n:
+                data += self._raw_read(n - len(data))
+        else:
+            data = self._raw_read(n)
+        self.pos += len(data)
+        return data
+
+    def close(self):
+        self.raw.close()
+
+
+def build_db(xml_src, db_path, past_days=7, progress=None, abort=None, offset_min=0, total=0):
+    """Build the guide database from XMLTV (plain or gzip).
+
+    xml_src: a file path, or a binary stream such as the HTTP response itself, so
+    the guide never has to be written to storage first (`total` = its size in
+    bytes if known, for progress).
+    """
     # A big guide (hundreds of thousands of programmes) keeps Python busy for
     # minutes. Kodi's add-ons share one interpreter, so without pauses every
     # other add-on (including TV mode) becomes very slow meanwhile.
     _lower_priority()
     pause_at = 1000
     shift = int(offset_min) * 60   # user correction for guides that are off
-    size = os.path.getsize(xml_path) or 1
-    raw = open(xml_path, 'rb')
-    gz = raw.read(2) == b'\x1f\x8b'
-    raw.seek(0)
+    if isinstance(xml_src, str):
+        total = os.path.getsize(xml_src)
+        xml_src = open(xml_src, 'rb')
+    raw = _Reader(xml_src)
+    size = total or 0
+    gz = raw.peek(2) == b'\x1f\x8b'
     src = gzip.GzipFile(fileobj=raw) if gz else raw
 
     tmp = '%s.%s.tmp' % (db_path, uuid.uuid4().hex[:8])
@@ -119,8 +176,9 @@ def build_db(xml_path, db_path, past_days=7, progress=None, abort=None, offset_m
                         raise common.Aborted()
                     if progress and time.time() - last > 1:
                         last = time.time()
-                        progress(int(raw.tell() * 100 / size),
-                                 'Processing EPG: %d programmes' % count)
+                        progress(int(raw.pos * 100 / size) if size else 0,
+                                 'Processing EPG: %d programmes (%.1f MB)'
+                                 % (count, raw.pos / 1048576.0))
             elif tag == 'channel':
                 icon = elem.find('icon')
                 con.execute('INSERT OR IGNORE INTO channels VALUES (?,?,?)', (
@@ -144,7 +202,8 @@ def build_db(xml_path, db_path, past_days=7, progress=None, abort=None, offset_m
             os.remove(tmp)
         raise
     finally:
-        src.close()
+        if src is not raw:
+            src.close()
         raw.close()
     con.close()
     common.atomic_replace(tmp, db_path)
