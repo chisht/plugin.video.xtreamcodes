@@ -8,6 +8,8 @@ PVR IPTV Simple; everything runs inside the add-on.
   programme schedule in one screen. It can open automatically when Kodi starts.
 - **Fast zapping**: Up/Down and CH+/CH- while watching fullscreen, with an
   instant channel banner. Number entry; 0 goes back to the previous channel.
+  CH+/CH- and PageUp/PageDown also work in TV mode, and the mini player can
+  follow the highlighted channel (STBEmu-style preview, off by default).
 - **Grid TV guide** from a full XMLTV download, with time offset correction.
 - **Catch-up** for channels with a TV archive, and **watch from the beginning**
   (also on the Rewind key).

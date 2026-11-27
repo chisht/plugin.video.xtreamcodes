@@ -372,11 +372,18 @@ def start_live(row, cat_id, windowed=False, announce=True):
     t_start = time.time()
     if announce:
         announce_start(row['name'])
-    free_connection()
+    # With 'Keep the checked channel playing' the online check runs while the old
+    # stream still plays (2 x quicker than stop, check, open); otherwise the
+    # connection is freed first.
+    keep_playing = common.setting_bool('zap_resume')
+    if not keep_playing:
+        free_connection()
     if not check_live(row):
         announce_end()
         offline_notice(row['name'])
         return False
+    if keep_playing:
+        free_connection()
     path, li = live_item(row)
     remember_zap(cat_id, row['stream_id'], row=row, windowed=windowed)
     common.log('Channel %s: ready to play %.1fs after the add-on was asked' % (
