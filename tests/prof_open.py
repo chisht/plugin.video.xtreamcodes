@@ -1,7 +1,7 @@
 import os, sys, tempfile, time, json, cProfile, pstats
-ADDON='/home/claude/plugin.video.xtreamcodes'
+ADDON=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ['ADDON_DIR']=ADDON; prof=tempfile.mkdtemp(); os.environ['PROFILE_DIR']=prof
-sys.path[:0]=['/home/claude/test/stubs', ADDON]
+sys.path[:0]=[os.path.join(ADDON,'tests','stubs'), os.path.join(ADDON,'tests'), ADDON]
 import fake_server_live as fake_server, xbmcaddon, xbmcgui, xbmc
 N=40187
 fake_server.LIVE[:] = [{"num":i+1,"name":"Channel %d"%(i+1),"stream_id":5000+i,"stream_icon":"","epg_channel_id":"ch%d"%(i%300),"category_id":str(1+i%1700),"tv_archive":0} for i in range(N)]

@@ -113,6 +113,10 @@ and show or hide adult content (when a PIN is set).
 When you leave TV mode the stream stops, unless you turn off **Settings → TV mode
 → Stop playback when leaving TV mode**.
 
+The colours and layout of TV mode (and of the grid guide and the channel banner)
+come from **Settings → Display → Skin** — see
+[Skin](#skin) for the STBEmu / Stalker portal look.
+
 ## 5. Watching live TV fullscreen (remote keys)
 
 While one of this add-on's live channels is playing fullscreen, these keys
@@ -348,8 +352,22 @@ anywhere.
 **TV mode**: start playing the last channel when TV mode opens, reminder lead
 time, stop playback when leaving, open TV mode when Kodi starts.
 
-**Display**: show what's on now in channel lists, show item counts on groups,
-items per page (0 = all).
+**Display**: *Skin* (see below), show what's on now in channel lists, show item
+counts on groups, items per page (0 = all).
+
+#### Skin
+
+**Settings → Display → Skin** changes how TV mode, the grid guide and the
+channel banner look.
+
+| Skin | What it gives you |
+|---|---|
+| Default (dark blue) | The look the add-on has always had: dark blue, light text, orange "playing" marks. |
+| STBEmu / Stalker portal | The look of STBEmu (the Stalker portal / Ministra boxes) on Android: black background, grey text, orange highlights, a narrower channel column, a smaller video window and a black banner along the bottom. |
+
+Each skin is a palette plus a folder of window layouts in
+`resources/skins/<name>/`, so the two are always in step: switching the skin
+changes both the colours the add-on draws in Python and the layouts it loads.
 
 **Background updates**: update channel lists in the background and how often,
 download the full EPG, how many past days to keep (for catch-up), EPG time

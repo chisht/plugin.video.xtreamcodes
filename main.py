@@ -16,7 +16,7 @@ import xbmcgui
 import xbmcplugin
 
 from resources.lib import common, sync
-from resources.lib import library, playback, tmdb, trakt, watching
+from resources.lib import library, playback, theme, tmdb, trakt, watching
 from resources.lib.playback import play_item
 from resources.lib.catalog import Catalog, build_catalog, live_rows
 from resources.lib.epg import EPG
@@ -238,9 +238,9 @@ def channel_item(row, progs, prefix='', cat_id=None):
     name = row['name']
     label = prefix + name
     if cat_id != 'fav' and sid in _favs():
-        label = common.STAR + label
+        label = common.star() + label
     if playback.is_offline(sid):
-        label = '[COLOR FF5A6478]%s  (offline)[/COLOR]' % label
+        label = common.dim('%s  (offline)' % label)
     lines = []
     now = time.time()
     if progs:
@@ -1088,9 +1088,9 @@ def _epg_hit(p, row, kind, ok_does, has_reminder):
         tag = '  [COLOR FF8A94A8](%s%s)[/COLOR]' % (
             common.fmt_until(p['start']), ', reminder set' if has_reminder else '')
     elif kind == 'past':
-        tag = '  [COLOR FFFF9F1C](recording)[/COLOR]'
+        tag = '  [COLOR %s](recording)[/COLOR]' % theme.playing()
     else:
-        tag = '  [COLOR FF4FA3FF](on now)[/COLOR]'
+        tag = '  [COLOR %s](on now)[/COLOR]' % theme.accent()
     label = '%s  %s  [COLOR FF8A94A8]- %s[/COLOR]%s' % (when, p['title'], playback.channel_label(row), tag)
     q = {'action': 'epg_pick', 'id': row['stream_id'], 'start': p['start'], 'stop': p['stop'],
          'title': p['title']}

@@ -1,7 +1,7 @@
 import os, sys, tempfile, runpy, time
-ADDON='/home/claude/plugin.video.xtreamcodes'
+ADDON=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ['ADDON_DIR']=ADDON; prof=tempfile.mkdtemp(); os.environ['PROFILE_DIR']=prof
-sys.path[:0]=['/home/claude/test/stubs', ADDON]
+sys.path[:0]=[os.path.join(ADDON,'tests','stubs'), os.path.join(ADDON,'tests'), ADDON]
 import fake_server_live as fs, fake_tmdb, xbmcaddon, xbmcgui, xbmc, xbmcplugin
 fs.VOD_LIST[:]=[
  {"name":"Alpha Movie (2010)","stream_id":601,"container_extension":"mkv","category_id":"10","tmdb":"1000","rating":"5"},   # by id

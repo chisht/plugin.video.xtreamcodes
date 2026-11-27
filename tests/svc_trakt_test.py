@@ -1,7 +1,7 @@
 import os, sys, tempfile, runpy
-ADDON='/home/claude/plugin.video.xtreamcodes'
+ADDON=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ['ADDON_DIR']=ADDON; prof=tempfile.mkdtemp(); os.environ['PROFILE_DIR']=prof
-sys.path[:0]=['/home/claude/test/stubs', ADDON]
+sys.path[:0]=[os.path.join(ADDON,'tests','stubs'), os.path.join(ADDON,'tests'), ADDON]
 import fake_server_trakt_xc as fake_server, fake_trakt, xbmcaddon, xbmc
 srv=fake_server.start(); tsrv=fake_trakt.start()
 xbmcaddon.SETTINGS.update(server='http://127.0.0.1:%d'%srv.server_address[1], username='u', password='p@ss', epg_enable='false', bg_enable='true', refresh_hours='12', trakt_client_id='CID', trakt_client_secret='S')

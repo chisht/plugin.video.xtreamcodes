@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Grid TV guide, STBEmu (Stalker portal) look: dark, orange headings and
+     orange programme blocks on now. Programme buttons are made by guide.py,
+     which also sets their colours from the theme. -->
+<window>
+  <defaultcontrol>9000</defaultcontrol>
+  <controls>
+    <control type="image">
+      <left>0</left><top>0</top><width>1920</width><height>1080</height>
+      <texture colordiffuse="FF000000">white.png</texture>
+    </control>
+    <control type="button" id="9000">
+      <left>-200</left><top>-200</top><width>10</width><height>10</height>
+    </control>
+
+    <!-- header bar -->
+    <control type="image">
+      <left>0</left><top>0</top><width>1920</width><height>100</height>
+      <texture colordiffuse="FF141414">white.png</texture>
+    </control>
+    <control type="image">
+      <left>0</left><top>0</top><width>1920</width><height>4</height>
+      <texture colordiffuse="FFE08A1E">white.png</texture>
+    </control>
+    <control type="label">
+      <left>40</left><top>18</top><width>1200</width><height>44</height>
+      <font>font13</font><textcolor>FFE08A1E</textcolor>
+      <label>$INFO[Window.Property(header)]</label>
+    </control>
+    <control type="label">
+      <left>40</left><top>60</top><width>1860</width><height>34</height>
+      <font>font10</font><textcolor>FF9A9A9A</textcolor>
+      <label>OK: watch here (OK again: fullscreen)   Left/Right: time   Up/Down: channels   CH+/CH-: page   Back: close</label>
+    </control>
+    <control type="label">
+      <left>1500</left><top>18</top><width>380</width><height>44</height>
+      <font>font13</font><textcolor>FFFFFFFF</textcolor><align>right</align>
+      <label>$INFO[System.Time]</label>
+    </control>
+
+    <!-- time columns -->
+    <control type="image">
+      <left>360</left><top>150</top><width>1530</width><height>36</height>
+      <texture colordiffuse="FF0A0A0A">white.png</texture>
+    </control>
+    <control type="label">
+      <left>40</left><top>150</top><width>300</width><height>36</height>
+      <font>font12</font><textcolor>FFE08A1E</textcolor><aligny>center</aligny>
+      <label>$INFO[Window.Property(day)]</label>
+    </control>
+    <control type="label" id="201">
+      <left>368</left><top>150</top><width>360</width><height>36</height>
+      <font>font12</font><textcolor>FFC8C8C8</textcolor>
+    </control>
+    <control type="label" id="202">
+      <left>750</left><top>150</top><width>360</width><height>36</height>
+      <font>font12</font><textcolor>FFC8C8C8</textcolor>
+    </control>
+    <control type="label" id="203">
+      <left>1133</left><top>150</top><width>360</width><height>36</height>
+      <font>font12</font><textcolor>FFC8C8C8</textcolor>
+    </control>
+    <control type="label" id="204">
+      <left>1515</left><top>150</top><width>360</width><height>36</height>
+      <font>font12</font><textcolor>FFC8C8C8</textcolor>
+    </control>
+
+    <!-- channel logos and names down the side -->
+    <control type="image">
+      <left>30</left><top>196</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+      <texture>$INFO[Window.Property(none)]</texture>
+      <visible>false</visible>
+    </control>
+    <control type="image" id="110">
+      <left>30</left><top>196</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="120">
+      <left>140</left><top>186</top><width>212</width><height>84</height>
+      <font>font12</font><textcolor>FFE6E6E6</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image" id="111">
+      <left>30</left><top>278</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="121">
+      <left>140</left><top>268</top><width>212</width><height>84</height>
+      <font>font12</font><textcolor>FFE6E6E6</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image" id="112">
+      <left>30</left><top>360</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="122">
+      <left>140</left><top>350</top><width>212</width><height>84</height>
+      <font>font12</font><textcolor>FFE6E6E6</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image" id="113">
+      <left>30</left><top>442</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="123">
+      <left>140</left><top>432</top><width>212</width><height>84</height>
+      <font>font12</font><textcolor>FFE6E6E6</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image" id="114">
+      <left>30</left><top>524</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="124">
+      <left>140</left><top>514</top><width>212</width><height>84</height>
+      <font>font12</font><textcolor>FFE6E6E6</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image" id="115">
+      <left>30</left><top>606</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="125">
+      <left>140</left><top>596</top><width>212</width><height>84</height>
+      <font>font12</font><textcolor>FFE6E6E6</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image" id="116">
+      <left>30</left><top>688</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="126">
+      <left>140</left><top>678</top><width>212</width><height>84</height>
+      <font>font12</font><textcolor>FFE6E6E6</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image" id="117">
+      <left>30</left><top>770</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="127">
+      <left>140</left><top>760</top><width>212</width><height>84</height>
+      <font>font12</font><textcolor>FFE6E6E6</textcolor><aligny>center</aligny>
+    </control>
+
+    <!-- thin row separators (guide.py puts the blocks at Y0 + row * ROW_H) -->
+    <control type="image">
+      <left>30</left><top>264</top><width>1860</width><height>2</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <control type="image">
+      <left>30</left><top>352</top><width>1860</width><height>2</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <control type="image">
+      <left>30</left><top>440</top><width>1860</width><height>2</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <control type="image">
+      <left>30</left><top>528</top><width>1860</width><height>2</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <control type="image">
+      <left>30</left><top>616</top><width>1860</width><height>2</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <control type="image">
+      <left>30</left><top>704</top><width>1860</width><height>2</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <control type="image">
+      <left>30</left><top>792</top><width>1860</width><height>2</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+
+    <!-- vertical time lines -->
+    <control type="image">
+      <left>360</left><top>150</top><width>2</width><height>730</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <control type="image">
+      <left>742</left><top>150</top><width>2</width><height>730</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <control type="image">
+      <left>1125</left><top>150</top><width>2</width><height>730</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <control type="image">
+      <left>1507</left><top>150</top><width>2</width><height>730</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+    </control>
+    <!-- "now" line -->
+    <control type="image" id="300">
+      <left>0</left><top>164</top><width>3</width><height>704</height>
+      <texture colordiffuse="FFE08A1E">white.png</texture>
+    </control>
+
+    <!-- programme info + mini player, at the bottom like the STBEmu info bar -->
+    <control type="image">
+      <left>0</left><top>888</top><width>1920</width><height>192</height>
+      <texture colordiffuse="FF0A0A0A">white.png</texture>
+    </control>
+    <control type="image">
+      <left>0</left><top>888</top><width>1920</width><height>3</height>
+      <texture colordiffuse="FFE08A1E">white.png</texture>
+    </control>
+    <control type="label">
+      <left>40</left><top>900</top><width>1440</width><height>44</height>
+      <font>font13</font><textcolor>FFFFFFFF</textcolor>
+      <label>$INFO[Window.Property(p_title)]</label>
+    </control>
+    <control type="label">
+      <left>40</left><top>944</top><width>1440</width><height>36</height>
+      <font>font12</font><textcolor>FFE08A1E</textcolor>
+      <label>$INFO[Window.Property(p_time)]</label>
+    </control>
+    <control type="textbox">
+      <left>40</left><top>982</top><width>1440</width><height>90</height>
+      <font>font10</font><textcolor>FFC8C8C8</textcolor>
+      <label>$INFO[Window.Property(p_plot)]</label>
+    </control>
+    <control type="image">
+      <left>1560</left><top>896</top><width>330</width><height>186</height>
+      <texture colordiffuse="FF000000">white.png</texture>
+      <visible>Player.HasVideo</visible>
+    </control>
+    <control type="videowindow">
+      <left>1560</left><top>896</top><width>330</width><height>186</height>
+      <visible>Player.HasVideo</visible>
+    </control>
+    <control type="image">
+      <left>1560</left><top>896</top><width>330</width><height>186</height>
+      <texture colordiffuse="FF1C1C1C">white.png</texture>
+      <visible>!String.IsEmpty(Window.Property(tuning))</visible>
+    </control>
+    <control type="label">
+      <left>1570</left><top>896</top><width>310</width><height>186</height>
+      <font>font12</font><textcolor>FFFFFFFF</textcolor>
+      <align>center</align><aligny>center</aligny>
+      <label>$INFO[Window.Property(tuning)]</label>
+      <visible>!String.IsEmpty(Window.Property(tuning))</visible>
+    </control>
+  </controls>
+</window>

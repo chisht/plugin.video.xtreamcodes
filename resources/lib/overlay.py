@@ -12,7 +12,7 @@ import uuid
 import xbmc
 import xbmcgui
 
-from . import common
+from . import common, theme
 from .epg import EPG
 
 PROP_SEQ = common.ADDON_ID + '.overlay_seq'
@@ -25,6 +25,7 @@ BAR_WIDTH = 1510
 class _Overlay(xbmcgui.WindowXMLDialog):
     def __init__(self, *args, **kwargs):
         self.bar = 0.0
+        self._theme = theme.current()
 
     def onInit(self):
         try:
@@ -39,7 +40,7 @@ class _Overlay(xbmcgui.WindowXMLDialog):
 
 
 def _new_overlay():
-    return _Overlay('script-xtreamcodes-banner.xml', common.ADDON_PATH, 'default', '1080i')
+    return _Overlay(theme.BANNER_XML, common.ADDON_PATH, theme.skin_dir(), '1080i')
 
 
 def _claim():

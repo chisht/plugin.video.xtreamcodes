@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Channel banner over fullscreen video and the channel-number box, in the
+     STBEmu (Stalker portal) look: a slim dark bar with an orange edge. -->
+<window type="dialog">
+  <zorder>1</zorder>
+  <controls>
+    <!-- channel banner -->
+    <control type="group">
+      <visible>String.IsEmpty(Window.Property(digits))</visible>
+      <animation effect="fade" start="0" end="100" time="150">WindowOpen</animation>
+      <animation effect="fade" start="100" end="0" time="200">WindowClose</animation>
+      <control type="image">
+        <left>0</left><top>880</top><width>1920</width><height>200</height>
+        <texture colordiffuse="F0000000">white.png</texture>
+      </control>
+      <control type="image">
+        <left>0</left><top>880</top><width>1920</width><height>4</height>
+        <texture colordiffuse="FFE08A1E">white.png</texture>
+      </control>
+      <control type="image">
+        <left>60</left><top>900</top><width>160</width><height>100</height>
+        <aspectratio>keep</aspectratio>
+        <texture>$INFO[Window.Property(logo)]</texture>
+      </control>
+      <control type="label">
+        <left>60</left><top>1004</top><width>160</width><height>44</height>
+        <font>font13</font><textcolor>FFE08A1E</textcolor><align>center</align>
+        <label>$INFO[Window.Property(num)]</label>
+      </control>
+      <control type="label">
+        <left>250</left><top>898</top><width>1180</width><height>46</height>
+        <font>font13</font><textcolor>FFFFFFFF</textcolor>
+        <label>$INFO[Window.Property(name)]</label>
+      </control>
+      <control type="label">
+        <left>1480</left><top>898</top><width>380</width><height>46</height>
+        <font>font13</font><textcolor>FF9A9A9A</textcolor><align>right</align>
+        <label>$INFO[System.Time]</label>
+      </control>
+      <control type="label">
+        <left>250</left><top>944</top><width>1610</width><height>38</height>
+        <font>font12</font><textcolor>FFE08A1E</textcolor>
+        <label>$INFO[Window.Property(now)]</label>
+      </control>
+      <control type="image">
+        <left>250</left><top>986</top><width>1610</width><height>5</height>
+        <texture colordiffuse="33FFFFFF">white.png</texture>
+        <visible>!String.IsEmpty(Window.Property(has_now))</visible>
+      </control>
+      <control type="image" id="10">
+        <left>250</left><top>986</top><width>1</width><height>5</height>
+        <texture colordiffuse="FFE08A1E">white.png</texture>
+        <visible>!String.IsEmpty(Window.Property(has_now))</visible>
+      </control>
+      <control type="label">
+        <left>250</left><top>998</top><width>1610</width><height>38</height>
+        <font>font12</font><textcolor>FFC8C8C8</textcolor>
+        <label>$INFO[Window.Property(next)]</label>
+      </control>
+      <control type="label">
+        <left>250</left><top>1038</top><width>1610</width><height>36</height>
+        <font>font10</font><textcolor>FF9A9A9A</textcolor>
+        <label>$INFO[Window.Property(extra)]</label>
+      </control>
+    </control>
+
+    <!-- channel number being typed -->
+    <control type="group">
+      <visible>!String.IsEmpty(Window.Property(digits))</visible>
+      <left>770</left><top>60</top>
+      <control type="image">
+        <left>0</left><top>0</top><width>380</width><height>190</height>
+        <texture colordiffuse="F0141414">white.png</texture>
+      </control>
+      <control type="image">
+        <left>0</left><top>0</top><width>380</width><height>5</height>
+        <texture colordiffuse="FFE08A1E">white.png</texture>
+      </control>
+      <control type="label">
+        <left>0</left><top>15</top><width>380</width><height>110</height>
+        <font>font_clock</font><textcolor>FFFFFFFF</textcolor>
+        <align>center</align><aligny>center</aligny>
+        <label>$INFO[Window.Property(digits)]</label>
+      </control>
+      <control type="label">
+        <left>15</left><top>130</top><width>350</width><height>45</height>
+        <font>font12</font><textcolor>FFC8C8C8</textcolor><align>center</align>
+        <label>$INFO[Window.Property(digits_name)]</label>
+      </control>
+    </control>
+  </controls>
+</window>

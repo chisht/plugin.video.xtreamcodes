@@ -379,7 +379,8 @@ def start_live(row, cat_id, windowed=False, announce=True):
         return False
     path, li = live_item(row)
     remember_zap(cat_id, row['stream_id'], row=row, windowed=windowed)
-    common.log('Opening %s: ready to play after %.1fs' % (row['name'], time.time() - t_start))
+    common.log('Channel %s: ready to play %.1fs after the add-on was asked' % (
+        row['name'], time.time() - t_start))
     xbmcgui.Window(10000).clearProperty(common.ADDON_ID + '.trakt_now')
     # timing for the "Picture on screen" log line (was only set by Up/Down)
     xbmcgui.Window(10000).setProperty(PROP_TUNE_T, '%f' % t_start)
@@ -510,7 +511,16 @@ def recall(windowed=False):
     if row is None:
         common.notify('Previous channel is not available', 2500)
         return None
-    return row if start_live(row, st.get('prev_cat') or '*', windowed, announce=False) else None
+    if not start_live(row, st.get('prev_cat') or '*', windowed, announce=False):
+        return None
+    # 0 was pressed again: go back to the channel we just left (and the one after).
+    if str(st.get('back')) == str(row['stream_id']):
+        return row
+    cur = zap_state() or {}
+    if cur.get('id'):
+        cur['back'] = cur['id']
+        xbmcgui.Window(10000).setProperty(common.PROP_ZAP, json.dumps(cur))
+    return row
 
 
 def playing_context(base=None):
@@ -589,7 +599,9 @@ class LiveRecovery(xbmc.Player):
         if st:
             t0 = xbmcgui.Window(10000).getProperty(PROP_TUNE_T)
             try:
-                common.log('Picture on screen %.1fs after the channel change' % (time.time() - float(t0)))
+                extra = ' (inputstream.ffmpegdirect)' if use_ffmpegdirect() else ''
+                common.log('Channel %s: picture on screen %.1fs after tuning%s' % (
+                    st['id'], time.time() - float(t0), extra))
             except ValueError:
                 pass
             # Remember which channel started, and when: a late callback from the

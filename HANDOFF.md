@@ -1,4 +1,4 @@
-# Handoff (state at version 1.13.6)
+# Handoff (state at version 1.14.0)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -24,13 +24,34 @@
 
 ## Tests
 `tests/` has stub Kodi modules (`tests/stubs`), fake Xtream/TMDb/Trakt servers and
-scenario scripts (`fix12`..`fix20`, `discover`, `guide`, ...). Scripts currently
-hard-code `ADDON='/home/claude/plugin.video.xtreamcodes'` and `/home/claude/test/stubs`;
-change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
-`python3 tests/fix20_test.py`. They print results to read; there are no asserts yet
-(a good first cleanup: convert to pytest with asserts).
+scenario scripts (`fix12`..`fix20`, `discover`, `guide`, `theme`, `skin_stbemu`, ...).
+Every script finds the add-on from its own path (no hard-coded checkout) and exits
+non-zero on failure, so the whole suite is one command from the repo root:
+
+    sh tests/run_all.sh            # all of them, ~2.5 min
+    sh tests/run_all.sh guide      # only tests whose name contains "guide"
+
+Add new tests as `tests/<name>_test.py` printing `PASS`/`FAIL` lines and calling
+`sys.exit(1 if fails else 0)`; `run_all.sh` picks them up by itself.
 
 ## Latest work
+1.14.0: skins. `resources/lib/theme.py` holds a palette per skin and the skin
+folder the layouts are loaded from; **Settings > Display > Skin** picks
+`default` (the old dark blue look, unchanged layouts) or `stbemu` (STBEmu /
+Stalker portal: black, grey text, orange highlights, narrower channel column,
+smaller video window, black bottom banner). A skin is a palette in `theme.py`
+plus a folder `resources/skins/<name>/1080i/<the three XMLs>` and
+`.../media/` (guide block textures, `tools/make_media.py` makes them), so adding
+one is a new folder plus a `SKINS` entry. `theme.apply(win)` still hands the
+palette to a window as properties for the layouts. Timing: the TV mode worker
+loop now sleeps 0.5 s while video plays, 0.12 s just after a cursor move and
+0.3 s otherwise (was a flat 0.25 s); the guide moves its "now" line every 10 s
+and only rebuilds the grid (hundreds of buttons) when "now" leaves the window or
+after `guide.MIN_REDRAW` seconds. Tests: `tests/theme_test.py` (palette, skin
+folder, XML control ids, no stale colour constants) and
+`tests/skin_stbemu_test.py` (TV mode, grid guide and banner end to end on
+`tests/fake_server_skin.py`).
+
 1.13.6: guide search labels use `common.fmt_when` (Today/Tomorrow/Yesterday) and
 `fmt_until` ("in 25 min"), tag (on now)/(recording), and show the channel number.
 The owner clicked what looked like an upcoming result and got a recording

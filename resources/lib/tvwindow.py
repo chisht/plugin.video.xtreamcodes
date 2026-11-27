@@ -12,10 +12,9 @@ import time
 import xbmc
 import xbmcgui
 
-from . import common
+from . import common, playback, reminders, theme
 from .catalog import Catalog, live_rows
 from .epg import EPG
-from . import playback, reminders
 from .playback import client
 from .xtream import XtreamError
 
@@ -30,7 +29,10 @@ ACTION_INFO = (11,)             # ACTION_SHOW_INFO: opens the grid guide
 BIG_GROUP = 1500
 VIEW = 800
 UP, DOWN = 'up', 'down'
-GREY = 'FF5A6478'
+
+
+def _star(t=None):
+    return '[COLOR %s]\u2605[/COLOR] ' % (t or theme.current()).fav
 
 
 def _now_label(progs, now):
@@ -65,6 +67,8 @@ class TVWindow(xbmcgui.WindowXML):
         self._favs = set()       # favourite channel ids (starred in the list)
         self._prog_key = None    # (channel, start) of a recording playing in the mini player
         self.base = ''
+        self._theme = theme.current()
+        self._skin_dir = theme.skin_dir(self._theme)
 
     # ------------------------------------------------------------ setup
     def onInit(self):
@@ -130,10 +134,11 @@ class TVWindow(xbmcgui.WindowXML):
         items = []
         sel = 0
         counts = common.setting_bool('show_counts')   # read once: each read is slow on a box
+        grey = self._theme.grey
         for i, g in enumerate(self.groups):
             label = g['name']
             if 'cnt' in g and counts:
-                label += '  [COLOR FF8A94A8](%d)[/COLOR]' % g['cnt']
+                label += '  [COLOR %s](%d)[/COLOR]' % (grey, g['cnt'])
             li = xbmcgui.ListItem(label, offscreen=True)
             if g['id'] == self.cat_id:
                 li.setProperty('active', 'true')
@@ -159,8 +164,8 @@ class TVWindow(xbmcgui.WindowXML):
             self.groups_ctl.getListItem(i).setProperty(
                 'active', 'true' if self.groups[i]['id'] == cat_id else '')
         name = next((g['name'] for g in self.groups if g['id'] == cat_id), '')
-        self.setProperty('header', '%s  -  %s  [COLOR FF8A94A8](%d)[/COLOR]'
-                         % (common.ADDON_NAME, name, len(rows)))
+        self.setProperty('header', '%s  -  %s  [COLOR %s](%d)[/COLOR]'
+                         % (common.ADDON_NAME, name, self._theme.grey, len(rows)))
 
     def _build_view(self, sel):
         """Fill the list control with the rows around index `sel` and select it."""
@@ -174,16 +179,17 @@ class TVWindow(xbmcgui.WindowXML):
         self.top_more, self.bottom_more = start > 0, end < len(rows)
         offline = playback.offline_ids()
         items = []
+        grey = self._theme.grey
         if self.top_more:
-            items.append(xbmcgui.ListItem('[COLOR FF8A94A8][ %d earlier channels ][/COLOR]' % start,
-                                          offscreen=True))
+            items.append(xbmcgui.ListItem('[COLOR %s][ %d earlier channels ][/COLOR]'
+                                          % (grey, start), offscreen=True))
         self._grey = set()
         for i in range(start, end):
             r = rows[i]
             label = self._name(i)
             if r['stream_id'] in offline:
-                li = xbmcgui.ListItem('[COLOR %s]%s[/COLOR]' % (GREY, label),
-                                      '[COLOR %s]Offline[/COLOR]' % GREY, offscreen=True)
+                li = xbmcgui.ListItem(common.dim(label, self._theme),
+                                      common.dim('Offline', self._theme), offscreen=True)
                 self._grey.add(i)
             else:
                 li = xbmcgui.ListItem(label, offscreen=True)
@@ -192,8 +198,8 @@ class TVWindow(xbmcgui.WindowXML):
                 li.setProperty('playing', 'true')
             items.append(li)
         if self.bottom_more:
-            items.append(xbmcgui.ListItem('[COLOR FF8A94A8][ %d more channels ][/COLOR]'
-                                          % (len(rows) - end), offscreen=True))
+            items.append(xbmcgui.ListItem('[COLOR %s][ %d more channels ][/COLOR]'
+                                          % (grey, len(rows) - end), offscreen=True))
         self._labelled = set()
         self.chan_ctl.reset()
         self.chan_ctl.addItems(items)
@@ -244,15 +250,15 @@ class TVWindow(xbmcgui.WindowXML):
         """'12  Channel name', starred if it is a favourite."""
         row = self.rows[idx]
         label = '%s  %s' % (row['num'] or (idx + 1), row['name'])
-        return common.STAR + label if row['stream_id'] in self._favs else label
+        return _star(self._theme) + label if row['stream_id'] in self._favs else label
 
     def _label(self, li, idx, offline, now_title=None):
         """Normal or greyed-out (offline) label for row `idx`."""
         row = self.rows[idx]
         label = self._name(idx)
         if row['stream_id'] in offline:
-            li.setLabel('[COLOR %s]%s[/COLOR]' % (GREY, label))
-            li.setLabel2('[COLOR %s]Offline[/COLOR]' % GREY)
+            li.setLabel(common.dim(label, self._theme))
+            li.setLabel2(common.dim('Offline', self._theme))
             self._grey.add(idx)
         else:
             li.setLabel(label)
@@ -522,7 +528,9 @@ class TVWindow(xbmcgui.WindowXML):
                 self._last_pos = -1   # redraw the schedule
 
     def play_channel(self, row):
+        t0 = time.time()
         ok = playback.start_live(row, self.cat_id, windowed=True)
+        common.log('TV mode: %s opened in %.1fs' % (row['name'], time.time() - t0))
         self._relabel(row['stream_id'])
         if ok:
             self._mark_playing(row['stream_id'])
@@ -539,9 +547,19 @@ class TVWindow(xbmcgui.WindowXML):
 
     # ----------------------------------------------------------- worker
     def _worker(self, autoplay=None):
+        """Keeps the screen in step with what is playing.
+
+        Two ways of working, so a slow box stays responsive:
+          * sleeping 0.12 s between checks while the user is scrolling (the cursor
+            has to follow at once), or
+          * sleeping 0.5 s when the cursor has been still for a while and nothing
+            is playing, so the box is not woken 8 times a second for nothing.
+        """
         monitor = xbmc.Monitor()
         guide = EPG(common.epg_path())
         last_refresh = time.time()
+        last_move = time.time()
+        idle = False
         try:
             if autoplay is not None and not self._stop.is_set():
                 self.play_channel(autoplay)   # after the window is up, so it never blocks it
@@ -555,15 +573,17 @@ class TVWindow(xbmcgui.WindowXML):
                     self._synced_id = sid
                     if sid in self.index:
                         self._select_idx(self.index[sid])
+                        last_move = time.time()
                 if sid and sid != self.playing_id and self._our_live_playing():
                     self._mark_playing(sid)
                 rows = self.rows
                 idx = self._pos_to_idx(self.chan_ctl.getSelectedPosition())
                 if idx in (UP, DOWN):
                     self._shift(idx)
-                    continue
-                if idx is not None and idx != self._last_pos:
+                    last_move = time.time()
+                elif idx is not None and idx != self._last_pos:
                     self._last_pos = idx
+                    last_move = time.time()
                     self._fill_labels(guide, idx)
                     self._show_channel(guide, rows[idx])
                 elif time.time() - last_refresh > 60:
@@ -571,7 +591,8 @@ class TVWindow(xbmcgui.WindowXML):
                     if idx is not None:
                         self._fill_labels(guide, idx, force=True)
                         self._show_channel(guide, rows[idx], keep_selection=True)
-                self._stop.wait(0.25)
+                idle = xbmc.Player().isPlayingVideo()
+                self._stop.wait(0.5 if idle else (0.12 if time.time() - last_move < 1.5 else 0.3))
         except Exception as e:   # window closed underneath us
             common.log('TV window worker stopped: %s' % e)
         finally:
@@ -579,9 +600,10 @@ class TVWindow(xbmcgui.WindowXML):
 
     def _show_channel(self, guide, row, keep_selection=False):
         now = time.time()
+        t = self._theme
         name = row['name']
         if row['archive']:
-            name += '  [COLOR FFFF9F1C]catch-up %dd[/COLOR]' % (row['archive_days'] or 0)
+            name += '  [COLOR %s]catch-up %dd[/COLOR]' % (t.catchup, row['archive_days'] or 0)
         self.setProperty('ch_name', name)
         past = 24 * 3600 if row['archive'] else 2 * 3600
         progs = guide.listings(row['epg_id'], now - past, now + 24 * 3600)
@@ -604,16 +626,18 @@ class TVWindow(xbmcgui.WindowXML):
         for i, p in enumerate(progs):
             when = common.fmt_day_time(p['start'])
             if p['start'] <= now < p['stop']:
-                label, tag, sel = '[B]%s  %s[/B]' % (when, p['title']), '[COLOR FF4FA3FF]NOW[/COLOR]', i
+                label, tag, sel = ('[B]%s  %s[/B]' % (when, p['title']),
+                                   '[COLOR %s]NOW[/COLOR]' % t.accent, i)
             elif p['stop'] <= now:
                 if row['archive']:
-                    label, tag = '%s  %s' % (when, p['title']), '[COLOR FFFF9F1C]CATCH-UP[/COLOR]'
+                    label, tag = ('%s  %s' % (when, p['title']),
+                                  '[COLOR %s]CATCH-UP[/COLOR]' % t.catchup)
                 else:
-                    label, tag = '[COLOR FF5A6478]%s  %s[/COLOR]' % (when, p['title']), ''
+                    label, tag = common.dim('%s  %s' % (when, p['title']), t), ''
             else:
                 label, tag = '%s  %s' % (when, p['title']), ''
                 if p['start'] > now and reminders.has(row['stream_id'], p['start']):
-                    tag = '[COLOR FF8A94A8]REMINDER[/COLOR]'
+                    tag = '[COLOR %s]REMINDER[/COLOR]' % t.grey
             items.append(xbmcgui.ListItem(label, tag, offscreen=True))
         self.sched = progs
         self.sched_row = row
@@ -625,7 +649,7 @@ class TVWindow(xbmcgui.WindowXML):
 
 
 def open_tv(before_show=None):
-    win = TVWindow('script-xtreamcodes-tv.xml', common.ADDON_PATH, 'default', '1080i')
+    win = TVWindow(theme.TV_XML, common.ADDON_PATH, theme.skin_dir(), '1080i')
     playback.UI['win'] = win
     try:
         if before_show:

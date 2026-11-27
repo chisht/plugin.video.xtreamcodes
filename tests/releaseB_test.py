@@ -1,7 +1,7 @@
 import os, sys, tempfile, json, runpy, time
-ADDON='/home/claude/plugin.video.xtreamcodes'
+ADDON=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ['ADDON_DIR']=ADDON; prof=tempfile.mkdtemp(); os.environ['PROFILE_DIR']=prof
-sys.path[:0]=['/home/claude/test/stubs', ADDON]
+sys.path[:0]=[os.path.join(ADDON,'tests','stubs'), os.path.join(ADDON,'tests'), ADDON]
 import fake_server_b as fake_server, fake_trakt, xbmcaddon, xbmcgui, xbmc, xbmcplugin
 srv=fake_server.start(); tsrv=fake_trakt.start(); S=xbmcaddon.SETTINGS; base='http://127.0.0.1:%d'%srv.server_address[1]
 S.update(server=base, username='u', password='p@ss', epg_enable='false', hide_adult='true', page_size='0', show_counts='false', check_stream='false',

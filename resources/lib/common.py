@@ -154,6 +154,18 @@ def _write_json(path, data):
 STAR = '[COLOR FFFFC107]\u2605[/COLOR] '   # marks a favourite channel in lists
 
 
+def star():
+    """Favourite marker, in the theme's colour."""
+    from . import theme
+    return '[COLOR %s]\u2605[/COLOR] ' % theme.fav()
+
+
+def dim(text, t=None):
+    """Text shown greyed out: offline channels, programmes that have aired."""
+    from . import theme
+    return '[COLOR %s]%s[/COLOR]' % ((t or theme.current()).dim, text)
+
+
 def load_favs():
     return [str(x) for x in load_json('favourites.json', [])]
 

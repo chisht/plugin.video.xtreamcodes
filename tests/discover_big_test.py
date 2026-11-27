@@ -1,7 +1,7 @@
 import os, sys, tempfile, time
-ADDON='/home/claude/plugin.video.xtreamcodes'
+ADDON=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.environ['ADDON_DIR']=ADDON; prof=tempfile.mkdtemp(); os.environ['PROFILE_DIR']=prof
-sys.path[:0]=['/home/claude/test/stubs', ADDON]
+sys.path[:0]=[os.path.join(ADDON,'tests','stubs'), os.path.join(ADDON,'tests'), ADDON]
 import fake_server_live as fs, xbmcaddon
 fs.VOD_LIST[:]=[{"name":"EN - Some Movie Number %d (%d)"%(i,1950+i%75),"stream_id":10000+i,"container_extension":"mp4","category_id":"10"} for i in range(100000)]
 srv=fs.start(); S=xbmcaddon.SETTINGS
