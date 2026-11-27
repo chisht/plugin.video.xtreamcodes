@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.xtreamcodes"
        name="Xtream Codes IPTV"
-       version="1.12.1"
+       version="1.12.2"
        provider-name="custom">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
@@ -12,10 +12,12 @@
   </extension>
   <extension point="xbmc.service" library="service.py" start="login"/>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en_GB">Xtream Codes API client: live TV, EPG, catch-up, movies and series</summary>
-    <description lang="en_GB">Browse channel groups and channels from an Xtream Codes compatible server, with now/next from a full XMLTV guide downloaded in the background, catch-up (timeshift) for channels with TV archive, movies (VOD) and series. The User-Agent is configurable and defaults to TiviMate's.</description>
+    <summary lang="en_GB">Live TV, TV guide, catch-up, movies and series from your Xtream Codes provider</summary>
+    <description lang="en_GB">Watch your Xtream Codes IPTV subscription in Kodi, without the PVR IPTV Simple client.[CR][CR][B]Live TV[/B]: TV mode with channel list, mini player and programme schedule; fast Up/Down and CH+/CH- zapping with a channel banner; number entry and channel recall (0); favourites; a full grid TV guide; offline channels detected and skipped.[CR][B]Catch-up[/B]: watch earlier programmes, or restart the current one from its beginning with the Rewind key.[CR][B]Movies and series[/B]: browse by category, recently added, resume and Continue watching, optional export to the Kodi library.[CR][B]Discover[/B]: trending, popular and top-rated titles with TMDb ratings, showing only what your provider has.[CR][B]Also[/B]: search (including the TV guide), reminders, sleep timer, Trakt scrobbling, hide or rename groups, adult filter with PIN, backup and restore, configurable User-Agent, background channel and EPG updates, and an option to start straight into TV mode.[CR][CR]You need a subscription from an Xtream Codes provider. This add-on does not provide any content.</description>
     <platform>all</platform>
     <license>MIT</license>
+    <source>https://github.com/chisht/plugin.video.xtreamcodes</source>
+    <news>1.12.2: new add-on description; user guide in docs/USER_GUIDE.md. 1.12.1: faster channel switching.</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>
