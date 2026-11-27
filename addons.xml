@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.xtreamcodes"
        name="Xtream Codes IPTV"
-       version="1.12.4"
+       version="1.13.0"
        provider-name="custom">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
@@ -17,7 +17,7 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/chisht/plugin.video.xtreamcodes</source>
-    <news>1.12.4: Up/Down pressed right as a channel starts playing is no longer ignored. 1.12.3: fixed TV mode background updates stopping; correct channel start timing in the log.</news>
+    <news>1.13.0: faster remote keys in fullscreen live TV - the channel banner appears at once (keys are handled by the background service; setting "Fast remote keys"). The banner now shows before the channel starts opening. 1.12.4: Up/Down right as a channel starts is no longer ignored.</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>
