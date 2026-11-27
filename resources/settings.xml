@@ -326,6 +326,11 @@
           <default>true</default>
           <control type="toggle"/>
         </setting>
+        <setting id="tv_preview" type="boolean" label="30166" help="30167">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle"/>
+        </setting>
         <setting id="reminder_lead" type="integer" label="30104">
           <level>0</level>
           <default>1</default>

@@ -161,6 +161,8 @@ def _zap_tune(state, rows, idx, step, skip, banner=True):
     cursor = state.get('cursor') or state['id']
     skipped = 0
     t_start = time.time()
+    # The old stream has to go before the check: with it open the provider may
+    # refuse the check (one-connection plans), which marked good channels offline.
     stopped = playback.free_connection()
     for attempt in range(1, min(len(rows), 30) + 1):
         pos = (idx + step * attempt) % len(rows)

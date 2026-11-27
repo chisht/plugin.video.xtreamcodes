@@ -24,6 +24,9 @@ ACTION_CLOSE = (10, 92)   # ACTION_PREVIOUS_MENU, ACTION_NAV_BACK
 ACTION_CONTEXT = (117,)   # ACTION_CONTEXT_MENU (C key / long press)
 ACTION_DIGITS = range(58, 68)   # ACTION_REMOTE_0 .. ACTION_REMOTE_9
 ACTION_INFO = (11,)             # ACTION_SHOW_INFO: opens the grid guide
+ACTION_CH_UP, ACTION_CH_DOWN = 184, 185   # CH+ / CH-: next / previous channel
+ACTION_PAGE_UP, ACTION_PAGE_DOWN = 5, 6   # PageUp / PageDown: next / previous group
+PREVIEW_WAIT = 2.0   # seconds the cursor has to rest before the preview tunes
 # Big groups (e.g. 40,000 channels in 'All channels') are shown as a window of
 # VIEW channels around the cursor that moves as you scroll, so opening stays fast.
 BIG_GROUP = 1500
@@ -66,9 +69,12 @@ class TVWindow(xbmcgui.WindowXML):
         self._synced_id = None   # last channel the cursor followed
         self._favs = set()       # favourite channel ids (starred in the list)
         self._prog_key = None    # (channel, start) of a recording playing in the mini player
+        self._preview = None     # row whose preview was tuned after a pause
+        self._preview_at = 0.0   # when the cursor last moved (preview waits after this)
         self.base = ''
         self._theme = theme.current()
         self._skin_dir = theme.skin_dir(self._theme)
+        self.preview_on = common.setting_bool('tv_preview')
 
     # ------------------------------------------------------------ setup
     def onInit(self):
@@ -328,12 +334,38 @@ class TVWindow(xbmcgui.WindowXML):
                 self.close()
         elif aid in ACTION_DIGITS:
             self._digit(aid - 58)
+        elif aid == ACTION_CH_UP:
+            self._hop(1)
+        elif aid == ACTION_CH_DOWN:
+            self._hop(-1)
+        elif aid == ACTION_PAGE_UP:
+            self._hop_group(1)
+        elif aid == ACTION_PAGE_DOWN:
+            self._hop_group(-1)
         elif aid in ACTION_CONTEXT and self.getFocusId() == CHANNELS:
             self._channel_menu()
         elif aid in ACTION_CONTEXT and self.getFocusId() == GROUPS:
             self._group_menu()
         elif aid in ACTION_INFO:
             self.open_grid()
+
+    def _hop(self, step):
+        """CH+ / CH-: tune the next / previous channel, wherever the cursor is."""
+        idx = self._selected_idx()
+        if idx is None:
+            return
+        idx = max(0, min(idx + step, len(self.rows) - 1))
+        self._select_idx(idx)
+        self.play_channel(self.rows[idx])
+
+    def _hop_group(self, step):
+        """PageUp / PageDown: next / previous group."""
+        pos = self.groups_ctl.getSelectedPosition()
+        if not 0 <= pos < len(self.groups):
+            pos = 0
+        pos = max(0, min(pos + step, len(self.groups) - 1))
+        self.groups_ctl.selectItem(pos)
+        self.load_channels(self.groups[pos]['id'], select_id=self.playing_id)
 
     def open_grid(self):
         from .guide import open_guide
@@ -584,8 +616,12 @@ class TVWindow(xbmcgui.WindowXML):
                 elif idx is not None and idx != self._last_pos:
                     self._last_pos = idx
                     last_move = time.time()
+                    self._preview_at = last_move
                     self._fill_labels(guide, idx)
                     self._show_channel(guide, rows[idx])
+                elif self.preview_due(idx, rows):
+                    self.play_channel(rows[idx])   # preview after a pause (STBEmu style)
+                    self._preview = rows[idx]['stream_id']
                 elif time.time() - last_refresh > 60:
                     last_refresh = time.time()
                     if idx is not None:
@@ -597,6 +633,23 @@ class TVWindow(xbmcgui.WindowXML):
             common.log('TV window worker stopped: %s' % e)
         finally:
             guide.close()
+
+    # ------------------------------------------------- preview (STBEmu style)
+    def preview_due(self, idx, rows):
+        """True when the cursor has rested long enough to preview that channel.
+
+        Same behaviour as a Stalker box: move up and down and the mini player
+        follows the list after a moment, instead of waiting for OK. Off by
+        default (Settings > TV mode > Preview the highlighted channel).
+        """
+        if not self.preview_on or idx is None or not 0 <= idx < len(rows):
+            return False
+        row = rows[idx]
+        if row['stream_id'] in self._grey or row['stream_id'] in playback.offline_ids():
+            return False
+        if row['stream_id'] == self.playing_id or row['stream_id'] == self._preview:
+            return False
+        return time.time() - self._preview_at >= PREVIEW_WAIT
 
     def _show_channel(self, guide, row, keep_selection=False):
         now = time.time()

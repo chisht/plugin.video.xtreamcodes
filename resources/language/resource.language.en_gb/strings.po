@@ -404,3 +404,11 @@ msgstr ""
 msgctxt "#30163"
 msgid "STBEmu / Stalker portal (black + orange)"
 msgstr ""
+
+msgctxt "#30166"
+msgid "Preview the highlighted channel"
+msgstr ""
+
+msgctxt "#30167"
+msgid "Change channel in the mini player when you stop moving in the channel list (as an STBEmu / Stalker box does), instead of waiting for OK. Off by default: it opens a stream for every channel you rest on, which counts towards your connection limit."
+msgstr ""
