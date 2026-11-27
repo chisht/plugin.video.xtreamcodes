@@ -1,4 +1,4 @@
-# Handoff (state at version 1.12.2)
+# Handoff (state at version 1.12.3)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -31,6 +31,14 @@ change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
 (a good first cleanup: convert to pytest with asserts).
 
 ## Latest work
+1.12.3 (from a real-device log): `common.save_json/save_state` now use a temp
+file unique per process/thread (a shared `.tmp` name made concurrent writers fail:
+"TV window worker stopped: No such file ... channel_history.json.tmp").
+`playback.start_live` now sets `PROP_TUNE_T` and logs "Opening <name>", so
+"Picture on screen" is timed correctly for TV mode / guide starts (before, it was
+measured from the last Up/Down, giving 24-41 s). Real-device timings from that log:
+OpenFile -> picture 0.7-8 s depending on the channel (provider side).
+
 1.12.2: no code changes. New addon.xml summary/description/news, README feature
 list, and a user guide in `docs/USER_GUIDE.md` (keep it in step with new features).
 
@@ -42,6 +50,9 @@ Kodi closes the old stream serially, so it cannot fully match STBEmu.
 Advice given: Settings > Player > Videos > Adjust display refresh rate = Off, MPEG-TS.
 
 ## Open items / ideas
+- `fix20` sometimes loses one of 4 very fast presses (banner repeats, e.g. C5, C5),
+  on old and new code alike: likely a race between key-press processes reading/
+  writing the zap state. Investigate.
 - Check real-device timing logs for the new zap path; tune `zap_debounce`.
 - TV guide search (`epg_pick`) still shows the live/restart popup.
 - Movies/series episodes do not get the "Starting..." note.

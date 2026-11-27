@@ -303,6 +303,7 @@ def announce_end():
 
 def start_live(row, cat_id, windowed=False, announce=True):
     """Check and play a channel. Returns False (with a notice) if it is offline."""
+    t_start = time.time()
     if announce:
         announce_start(row['name'])
     free_connection()
@@ -312,7 +313,10 @@ def start_live(row, cat_id, windowed=False, announce=True):
         return False
     path, li = live_item(row)
     remember_zap(cat_id, row['stream_id'], row=row, windowed=windowed)
+    common.log('Opening %s: ready to play after %.1fs' % (row['name'], time.time() - t_start))
     xbmcgui.Window(10000).clearProperty(common.ADDON_ID + '.trakt_now')
+    # timing for the "Picture on screen" log line (was only set by Up/Down)
+    xbmcgui.Window(10000).setProperty(PROP_TUNE_T, '%f' % t_start)
     xbmc.Player().play(path, li, windowed)
     return True
 

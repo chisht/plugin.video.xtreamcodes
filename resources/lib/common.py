@@ -2,8 +2,10 @@
 """Shared helpers: settings, paths, logging, ListItem info."""
 import json
 import os
+import threading
 import time
 import urllib.parse
+import uuid
 
 import xbmc
 import xbmcaddon
@@ -117,11 +119,7 @@ def load_state():
 
 
 def save_state(state):
-    path = profile_file('state.json')
-    tmp = path + '.tmp'
-    with open(tmp, 'w', encoding='utf-8') as f:
-        json.dump(state, f)
-    atomic_replace(tmp, path)
+    _write_json(profile_file('state.json'), state)
 
 
 def load_json(name, default):
@@ -133,11 +131,24 @@ def load_json(name, default):
 
 
 def save_json(name, data):
-    path = profile_file(name)
-    tmp = path + '.tmp'
-    with open(tmp, 'w', encoding='utf-8') as f:
-        json.dump(data, f)
-    atomic_replace(tmp, path)
+    _write_json(profile_file(name), data)
+
+
+def _write_json(path, data):
+    """Write via a temporary file unique to this writer: TV mode, the service and
+    each remote key press run in separate threads/processes and can save the same
+    file at the same moment; a shared temp name made one of them fail."""
+    tmp = '%s.%d.%d.%s.tmp' % (path, os.getpid(), threading.get_ident(), uuid.uuid4().hex[:6])
+    try:
+        with open(tmp, 'w', encoding='utf-8') as f:
+            json.dump(data, f)
+        atomic_replace(tmp, path)
+    finally:
+        if os.path.exists(tmp):
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
 
 
 STAR = '[COLOR FFFFC107]\u2605[/COLOR] '   # marks a favourite channel in lists
