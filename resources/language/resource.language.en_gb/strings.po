@@ -412,11 +412,3 @@ msgstr ""
 msgctxt "#30167"
 msgid "Change channel in the mini player when you stop moving in the channel list (as an STBEmu / Stalker box does), instead of waiting for OK. Off by default: it opens a stream for every channel you rest on, which counts towards your connection limit."
 msgstr ""
-
-msgctxt "#30168"
-msgid "Keep the checked channel playing"
-msgstr ""
-
-msgctxt "#30169"
-msgid "Before opening a new channel the add-on checks that it is online. With this on, that check is made while the current channel is still playing (so zapping starts sooner) and the picture only stops for the moment the new stream is opened. Turn off if your provider counts the check as a second connection."
-msgstr ""

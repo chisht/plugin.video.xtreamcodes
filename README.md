@@ -10,6 +10,8 @@ PVR IPTV Simple; everything runs inside the add-on.
   instant channel banner. Number entry; 0 goes back to the previous channel.
   CH+/CH- and PageUp/PageDown also work in TV mode, and the mini player can
   follow the highlighted channel (STBEmu-style preview, off by default).
+  Channel changes stay quick on one-connection plans: the online check is a
+  single HEAD request and is skipped for a channel that just played.
 - **Grid TV guide** from a full XMLTV download, with time offset correction.
 - **Catch-up** for channels with a TV archive, and **watch from the beginning**
   (also on the Rewind key).

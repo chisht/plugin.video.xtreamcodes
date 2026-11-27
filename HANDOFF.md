@@ -1,4 +1,4 @@
-# Handoff (state at version 1.14.1)
+# Handoff (state at version 1.14.2)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -35,6 +35,20 @@ Add new tests as `tests/<name>_test.py` printing `PASS`/`FAIL` lines and calling
 `sys.exit(1 if fails else 0)`; `run_all.sh` picks them up by itself.
 
 ## Latest work
+1.14.2: zapping timing fixed after a report that it got *slower* after turning on
+"close the current stream before opening the next one" and stayed slow when turned
+off. Cause: 1.14.1's `zap_resume` ran the online check while our own stream was
+open, so a one-connection provider refused it (HTTP 403), `set_offline` marked a
+good channel offline for 10 min, and the next Up/Down skipped/probed channels
+until it found one. Reverted (`zap_resume` removed); as before, the stream is
+closed first, then checked, then opened. Two changes keep that path fast:
+`probe()` now uses HEAD (no stream opened on the server) falling back to
+open-and-read for 405/501, and `playback.check_cached/mark_checked`
+(`PROP_CHECKED`, 10 min) skip a repeated probe for a channel that just played or
+just failed. `LiveRecovery.onAVStarted` clears the offline mark and trusts the
+channel; a failed retry re-checks afresh; "Clear cached data" calls
+`playback.forget_checks()`. Test: `tests/zap_improve_test.py`.
+
 1.14.1: zapping. TV mode gained CH+/CH- (`_hop`: tune the next/previous channel in
 the list) and PageUp/PageDown (`_hop_group`: next/previous group); `tv_preview`
 (Settings > TV mode, off by default) makes the worker tune the highlighted channel
