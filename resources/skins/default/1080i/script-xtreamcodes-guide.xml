@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Grid TV guide. Programme buttons are created by resources/lib/guide.py -->
+<window>
+  <defaultcontrol>9000</defaultcontrol>
+  <controls>
+    <control type="image">
+      <left>0</left><top>0</top><width>1920</width><height>1080</height>
+      <texture colordiffuse="FF0B0F18">white.png</texture>
+    </control>
+    <control type="button" id="9000">
+      <left>-200</left><top>-200</top><width>10</width><height>10</height>
+    </control>
+    <control type="label">
+      <left>30</left><top>25</top><width>1300</width><height>50</height>
+      <font>font13</font><textcolor>FFFFFFFF</textcolor>
+      <label>$INFO[Window.Property(header)]</label>
+    </control>
+    <control type="label">
+      <left>1490</left><top>25</top><width>400</width><height>50</height>
+      <font>font13</font><textcolor>FFAAB4C8</textcolor><align>right</align>
+      <label>$INFO[System.Time]</label>
+    </control>
+    <control type="label">
+      <left>30</left><top>75</top><width>1860</width><height>40</height>
+      <font>font10</font><textcolor>FF6A7488</textcolor>
+      <label>OK: watch here (OK again: fullscreen)   Left/Right: time   Up/Down: channels   CH+/CH-: page   Back: close</label>
+    </control>
+    <control type="label">
+      <left>30</left><top>128</top><width>320</width><height>40</height>
+      <font>font12</font><textcolor>FF4FA3FF</textcolor>
+      <label>$INFO[Window.Property(day)]</label>
+    </control>
+    <control type="label" id="201">
+      <left>368</left><top>128</top><width>360</width><height>40</height>
+      <font>font12</font><textcolor>FFAAB4C8</textcolor>
+    </control>
+    <control type="image">
+      <left>360</left><top>128</top><width>2</width><height>756</height>
+      <texture colordiffuse="22FFFFFF">white.png</texture>
+    </control>
+    <control type="label" id="202">
+      <left>750</left><top>128</top><width>360</width><height>40</height>
+      <font>font12</font><textcolor>FFAAB4C8</textcolor>
+    </control>
+    <control type="image">
+      <left>742</left><top>128</top><width>2</width><height>756</height>
+      <texture colordiffuse="22FFFFFF">white.png</texture>
+    </control>
+    <control type="label" id="203">
+      <left>1133</left><top>128</top><width>360</width><height>40</height>
+      <font>font12</font><textcolor>FFAAB4C8</textcolor>
+    </control>
+    <control type="image">
+      <left>1125</left><top>128</top><width>2</width><height>756</height>
+      <texture colordiffuse="22FFFFFF">white.png</texture>
+    </control>
+    <control type="label" id="204">
+      <left>1515</left><top>128</top><width>360</width><height>40</height>
+      <font>font12</font><textcolor>FFAAB4C8</textcolor>
+    </control>
+    <control type="image">
+      <left>1507</left><top>128</top><width>2</width><height>756</height>
+      <texture colordiffuse="22FFFFFF">white.png</texture>
+    </control>
+    <control type="image" id="110">
+      <left>30</left><top>190</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="120">
+      <left>140</left><top>180</top><width>205</width><height>84</height>
+      <font>font12</font><textcolor>FFE6EAF2</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image">
+      <left>30</left><top>266</top><width>1860</width><height>1</height>
+      <texture colordiffuse="14FFFFFF">white.png</texture>
+    </control>
+    <control type="image" id="111">
+      <left>30</left><top>278</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="121">
+      <left>140</left><top>268</top><width>205</width><height>84</height>
+      <font>font12</font><textcolor>FFE6EAF2</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image">
+      <left>30</left><top>354</top><width>1860</width><height>1</height>
+      <texture colordiffuse="14FFFFFF">white.png</texture>
+    </control>
+    <control type="image" id="112">
+      <left>30</left><top>366</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="122">
+      <left>140</left><top>356</top><width>205</width><height>84</height>
+      <font>font12</font><textcolor>FFE6EAF2</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image">
+      <left>30</left><top>442</top><width>1860</width><height>1</height>
+      <texture colordiffuse="14FFFFFF">white.png</texture>
+    </control>
+    <control type="image" id="113">
+      <left>30</left><top>454</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="123">
+      <left>140</left><top>444</top><width>205</width><height>84</height>
+      <font>font12</font><textcolor>FFE6EAF2</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image">
+      <left>30</left><top>530</top><width>1860</width><height>1</height>
+      <texture colordiffuse="14FFFFFF">white.png</texture>
+    </control>
+    <control type="image" id="114">
+      <left>30</left><top>542</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="124">
+      <left>140</left><top>532</top><width>205</width><height>84</height>
+      <font>font12</font><textcolor>FFE6EAF2</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image">
+      <left>30</left><top>618</top><width>1860</width><height>1</height>
+      <texture colordiffuse="14FFFFFF">white.png</texture>
+    </control>
+    <control type="image" id="115">
+      <left>30</left><top>630</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="125">
+      <left>140</left><top>620</top><width>205</width><height>84</height>
+      <font>font12</font><textcolor>FFE6EAF2</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image">
+      <left>30</left><top>706</top><width>1860</width><height>1</height>
+      <texture colordiffuse="14FFFFFF">white.png</texture>
+    </control>
+    <control type="image" id="116">
+      <left>30</left><top>718</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="126">
+      <left>140</left><top>708</top><width>205</width><height>84</height>
+      <font>font12</font><textcolor>FFE6EAF2</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image">
+      <left>30</left><top>794</top><width>1860</width><height>1</height>
+      <texture colordiffuse="14FFFFFF">white.png</texture>
+    </control>
+    <control type="image" id="117">
+      <left>30</left><top>806</top><width>100</width><height>64</height>
+      <aspectratio>keep</aspectratio>
+    </control>
+    <control type="label" id="127">
+      <left>140</left><top>796</top><width>205</width><height>84</height>
+      <font>font12</font><textcolor>FFE6EAF2</textcolor><aligny>center</aligny>
+    </control>
+    <control type="image">
+      <left>30</left><top>882</top><width>1860</width><height>1</height>
+      <texture colordiffuse="14FFFFFF">white.png</texture>
+    </control>
+    <control type="image" id="300">
+      <left>0</left><top>172</top><width>3</width><height>712</height>
+      <texture colordiffuse="FFFF9F1C">white.png</texture>
+    </control>
+
+    <!-- programme info + mini player -->
+    <control type="image">
+      <left>0</left><top>888</top><width>1920</width><height>192</height>
+      <texture colordiffuse="FF111827">white.png</texture>
+    </control>
+    <control type="label">
+      <left>30</left><top>898</top><width>1480</width><height>44</height>
+      <font>font13</font><textcolor>FFFFFFFF</textcolor>
+      <label>$INFO[Window.Property(p_title)]</label>
+    </control>
+    <control type="label">
+      <left>30</left><top>940</top><width>1480</width><height>36</height>
+      <font>font12</font><textcolor>FF4FA3FF</textcolor>
+      <label>$INFO[Window.Property(p_time)]</label>
+    </control>
+    <control type="textbox">
+      <left>30</left><top>978</top><width>1480</width><height>92</height>
+      <font>font10</font><textcolor>FFAAB4C8</textcolor>
+      <label>$INFO[Window.Property(p_plot)]</label>
+    </control>
+    <control type="image">
+      <left>1560</left><top>896</top><width>330</width><height>186</height>
+      <texture colordiffuse="FF000000">white.png</texture>
+      <visible>Player.HasVideo</visible>
+    </control>
+    <control type="videowindow">
+      <left>1560</left><top>896</top><width>330</width><height>186</height>
+      <visible>Player.HasVideo</visible>
+    </control>
+    <control type="image">
+      <left>1560</left><top>896</top><width>330</width><height>186</height>
+      <texture colordiffuse="FF1B2A44">white.png</texture>
+      <visible>!String.IsEmpty(Window.Property(tuning))</visible>
+    </control>
+    <control type="label">
+      <left>1570</left><top>896</top><width>310</width><height>186</height>
+      <font>font12</font><textcolor>FFFFFFFF</textcolor>
+      <align>center</align><aligny>center</aligny>
+      <label>$INFO[Window.Property(tuning)]</label>
+      <visible>!String.IsEmpty(Window.Property(tuning))</visible>
+    </control>
+  </controls>
+</window>

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- TV mode: groups | channels | mini player + now/next + schedule -->
+<window>
+  <defaultcontrol always="true">200</defaultcontrol>
+  <controls>
+    <control type="image">
+      <left>0</left><top>0</top><width>1920</width><height>1080</height>
+      <texture colordiffuse="FF0B0F18">white.png</texture>
+    </control>
+
+    <!-- header -->
+    <control type="label">
+      <left>30</left><top>25</top><width>1200</width><height>50</height>
+      <font>font13</font><textcolor>FFFFFFFF</textcolor>
+      <label>$INFO[Window.Property(header)]</label>
+    </control>
+    <control type="label">
+      <left>1490</left><top>25</top><width>400</width><height>50</height>
+      <font>font13</font><textcolor>FFAAB4C8</textcolor><align>right</align>
+      <label>$INFO[System.Time]</label>
+    </control>
+
+    <control type="scrollbar" id="101">
+      <left>30</left><top>100</top><width>16</width><height>950</height>
+      <texturesliderbackground colordiffuse="1AFFFFFF">white.png</texturesliderbackground>
+      <texturesliderbar colordiffuse="55FFFFFF">white.png</texturesliderbar>
+      <texturesliderbarfocus colordiffuse="FF4FA3FF">white.png</texturesliderbarfocus>
+      <orientation>vertical</orientation>
+      <showonepage>true</showonepage>
+      <onright>100</onright>
+    </control>
+    <!-- channel groups -->
+    <control type="list" id="100">
+      <left>56</left><top>100</top><width>334</width><height>950</height>
+      <onleft>101</onleft>
+      <onright>200</onright>
+      <pagecontrol>101</pagecontrol>
+      <scrolltime>120</scrolltime>
+      <orientation>vertical</orientation>
+      <itemlayout height="60" width="334">
+        <control type="image">
+          <left>0</left><top>8</top><width>5</width><height>44</height>
+          <texture colordiffuse="FF4FA3FF">white.png</texture>
+          <visible>!String.IsEmpty(ListItem.Property(active))</visible>
+        </control>
+        <control type="label">
+          <left>18</left><top>0</top><width>304</width><height>60</height>
+          <font>font12</font><textcolor>FFAAB4C8</textcolor><aligny>center</aligny>
+          <label>$INFO[ListItem.Label]</label>
+        </control>
+      </itemlayout>
+      <focusedlayout height="60" width="334">
+        <control type="image">
+          <left>0</left><top>0</top><width>334</width><height>60</height>
+          <texture colordiffuse="FF2A6FDB">white.png</texture>
+          <visible>Control.HasFocus(100)</visible>
+        </control>
+        <control type="image">
+          <left>0</left><top>0</top><width>334</width><height>60</height>
+          <texture colordiffuse="22FFFFFF">white.png</texture>
+          <visible>!Control.HasFocus(100)</visible>
+        </control>
+        <control type="label">
+          <left>18</left><top>0</top><width>304</width><height>60</height>
+          <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+          <label>$INFO[ListItem.Label]</label>
+        </control>
+      </focusedlayout>
+    </control>
+
+    <!-- channels -->
+    <control type="list" id="200">
+      <left>410</left><top>100</top><width>596</width><height>950</height>
+      <onleft>100</onleft>
+      <onright>201</onright>
+      <pagecontrol>201</pagecontrol>
+      <scrolltime>120</scrolltime>
+      <orientation>vertical</orientation>
+      <itemlayout height="86" width="596">
+        <control type="image">
+          <left>0</left><top>10</top><width>5</width><height>66</height>
+          <texture colordiffuse="FFFF9F1C">white.png</texture>
+          <visible>!String.IsEmpty(ListItem.Property(playing))</visible>
+        </control>
+        <control type="image">
+          <left>14</left><top>9</top><width>120</width><height>68</height>
+          <aspectratio>keep</aspectratio>
+          <texture>$INFO[ListItem.Icon]</texture>
+        </control>
+        <control type="label">
+          <left>148</left><top>8</top><width>436</width><height>38</height>
+          <font>font12</font><textcolor>FFE6EAF2</textcolor>
+          <label>$INFO[ListItem.Label]</label>
+        </control>
+        <control type="label">
+          <left>148</left><top>44</top><width>436</width><height>34</height>
+          <font>font10</font><textcolor>FF8A94A8</textcolor>
+          <label>$INFO[ListItem.Label2]</label>
+        </control>
+      </itemlayout>
+      <focusedlayout height="86" width="596">
+        <control type="image">
+          <left>0</left><top>0</top><width>596</width><height>86</height>
+          <texture colordiffuse="FF2A6FDB">white.png</texture>
+          <visible>Control.HasFocus(200)</visible>
+        </control>
+        <control type="image">
+          <left>0</left><top>0</top><width>596</width><height>86</height>
+          <texture colordiffuse="22FFFFFF">white.png</texture>
+          <visible>!Control.HasFocus(200)</visible>
+        </control>
+        <control type="image">
+          <left>0</left><top>10</top><width>5</width><height>66</height>
+          <texture colordiffuse="FFFF9F1C">white.png</texture>
+          <visible>!String.IsEmpty(ListItem.Property(playing))</visible>
+        </control>
+        <control type="image">
+          <left>14</left><top>9</top><width>120</width><height>68</height>
+          <aspectratio>keep</aspectratio>
+          <texture>$INFO[ListItem.Icon]</texture>
+        </control>
+        <control type="label">
+          <left>148</left><top>8</top><width>436</width><height>38</height>
+          <font>font12</font><textcolor>FFFFFFFF</textcolor>
+          <label>$INFO[ListItem.Label]</label>
+        </control>
+        <control type="label">
+          <left>148</left><top>44</top><width>436</width><height>34</height>
+          <font>font10</font><textcolor>FFD0D8E8</textcolor>
+          <label>$INFO[ListItem.Label2]</label>
+        </control>
+      </focusedlayout>
+    </control>
+
+    <control type="scrollbar" id="201">
+      <left>1018</left><top>100</top><width>16</width><height>950</height>
+      <texturesliderbackground colordiffuse="1AFFFFFF">white.png</texturesliderbackground>
+      <texturesliderbar colordiffuse="55FFFFFF">white.png</texturesliderbar>
+      <texturesliderbarfocus colordiffuse="FF4FA3FF">white.png</texturesliderbarfocus>
+      <orientation>vertical</orientation>
+      <showonepage>true</showonepage>
+      <onright>500</onright><onleft>200</onleft>
+    </control>
+    <!-- mini player -->
+    <control type="image">
+      <left>1060</left><top>100</top><width>830</width><height>467</height>
+      <texture colordiffuse="FF000000">white.png</texture>
+    </control>
+    <control type="videowindow" id="300">
+      <left>1060</left><top>100</top><width>830</width><height>467</height>
+    </control>
+    <control type="label">
+      <left>1060</left><top>100</top><width>830</width><height>467</height>
+      <font>font12</font><textcolor>FF8A94A8</textcolor>
+      <align>center</align><aligny>center</aligny>
+      <label>Press OK on a channel to watch.[CR]Press OK again for fullscreen.</label>
+      <visible>!Player.HasVideo</visible>
+    </control>
+    <control type="image">
+      <left>1060</left><top>100</top><width>830</width><height>467</height>
+      <texture colordiffuse="FF1B2A44">white.png</texture>
+      <visible>!String.IsEmpty(Window.Property(tuning))</visible>
+    </control>
+    <control type="label">
+      <left>1080</left><top>100</top><width>790</width><height>467</height>
+      <font>font13</font><textcolor>FFFFFFFF</textcolor>
+      <align>center</align><aligny>center</aligny>
+      <label>$INFO[Window.Property(tuning)]</label>
+      <visible>!String.IsEmpty(Window.Property(tuning))</visible>
+    </control>
+
+    <!-- now / next for the highlighted channel -->
+    <control type="label">
+      <left>1060</left><top>580</top><width>830</width><height>40</height>
+      <font>font13</font><textcolor>FFFFFFFF</textcolor>
+      <label>$INFO[Window.Property(ch_name)]</label>
+    </control>
+    <control type="label">
+      <left>1060</left><top>620</top><width>830</width><height>36</height>
+      <font>font12</font><textcolor>FF4FA3FF</textcolor>
+      <label>$INFO[Window.Property(now_line)]</label>
+    </control>
+    <control type="image" id="405">
+      <left>1060</left><top>662</top><width>830</width><height>6</height>
+      <texture colordiffuse="33FFFFFF">white.png</texture>
+      <visible>!String.IsEmpty(Window.Property(has_now))</visible>
+    </control>
+    <control type="image" id="406">
+      <left>1060</left><top>662</top><width>1</width><height>6</height>
+      <texture colordiffuse="FF4FA3FF">white.png</texture>
+      <visible>!String.IsEmpty(Window.Property(has_now))</visible>
+    </control>
+    <control type="textbox">
+      <left>1060</left><top>678</top><width>830</width><height>100</height>
+      <font>font10</font><textcolor>FFAAB4C8</textcolor>
+      <label>$INFO[Window.Property(now_plot)]</label>
+    </control>
+
+    <!-- schedule (EPG) for the highlighted channel -->
+    <control type="list" id="500">
+      <left>1060</left><top>790</top><width>830</width><height>260</height>
+      <onleft>200</onleft>
+      <scrolltime>120</scrolltime>
+      <orientation>vertical</orientation>
+      <itemlayout height="52" width="830">
+        <control type="label">
+          <left>12</left><top>0</top><width>640</width><height>52</height>
+          <font>font12</font><textcolor>FFC8D0DE</textcolor><aligny>center</aligny>
+          <label>$INFO[ListItem.Label]</label>
+        </control>
+        <control type="label">
+          <left>660</left><top>0</top><width>158</width><height>52</height>
+          <font>font10</font><align>right</align><aligny>center</aligny>
+          <label>$INFO[ListItem.Label2]</label>
+        </control>
+      </itemlayout>
+      <focusedlayout height="52" width="830">
+        <control type="image">
+          <left>0</left><top>0</top><width>830</width><height>52</height>
+          <texture colordiffuse="FF2A6FDB">white.png</texture>
+          <visible>Control.HasFocus(500)</visible>
+        </control>
+        <control type="label">
+          <left>12</left><top>0</top><width>640</width><height>52</height>
+          <font>font12</font><textcolor>FFFFFFFF</textcolor><aligny>center</aligny>
+          <label>$INFO[ListItem.Label]</label>
+        </control>
+        <control type="label">
+          <left>660</left><top>0</top><width>158</width><height>52</height>
+          <font>font10</font><align>right</align><aligny>center</aligny>
+          <label>$INFO[ListItem.Label2]</label>
+        </control>
+      </focusedlayout>
+    </control>
+    <!-- channel number typed on the remote -->
+    <control type="group">
+      <left>710</left><top>390</top>
+      <visible>!String.IsEmpty(Window.Property(digits))</visible>
+      <control type="image">
+        <left>0</left><top>0</top><width>500</width><height>230</height>
+        <texture colordiffuse="F0101828">white.png</texture>
+      </control>
+      <control type="image">
+        <left>0</left><top>0</top><width>500</width><height>6</height>
+        <texture colordiffuse="FF4FA3FF">white.png</texture>
+      </control>
+      <control type="label">
+        <left>0</left><top>20</top><width>500</width><height>130</height>
+        <font>font_clock</font><textcolor>FFFFFFFF</textcolor>
+        <align>center</align><aligny>center</aligny>
+        <label>$INFO[Window.Property(digits)]</label>
+      </control>
+      <control type="label">
+        <left>20</left><top>160</top><width>460</width><height>50</height>
+        <font>font12</font><textcolor>FFAAB4C8</textcolor><align>center</align>
+        <label>$INFO[Window.Property(digits_name)]</label>
+      </control>
+    </control>
+  </controls>
+</window>

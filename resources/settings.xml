@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings version="1">
+  <section id="plugin.video.xtreamcodes">
+
+    <category id="account" label="30000">
+      <group id="1">
+        <setting id="server" type="string" label="30001" help="30002">
+          <level>0</level>
+          <default/>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string"><heading>30001</heading></control>
+        </setting>
+        <setting id="username" type="string" label="30003">
+          <level>0</level>
+          <default/>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string"><heading>30003</heading></control>
+        </setting>
+        <setting id="password" type="string" label="30004">
+          <level>0</level>
+          <default/>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string">
+            <heading>30004</heading>
+            <hidden>true</hidden>
+          </control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="network" label="30010">
+      <group id="1">
+        <setting id="custom_ua_enable" type="boolean" label="30011" help="30012">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="custom_ua" type="string" label="30013" parent="custom_ua_enable">
+          <level>0</level>
+          <default/>
+          <constraints><allowempty>true</allowempty></constraints>
+          <dependencies>
+            <dependency type="enable" setting="custom_ua_enable">true</dependency>
+          </dependencies>
+          <control type="edit" format="string"><heading>30013</heading></control>
+        </setting>
+        <setting id="timeout" type="integer" label="30014">
+          <level>1</level>
+          <default>30</default>
+          <constraints><minimum>5</minimum><step>5</step><maximum>180</maximum></constraints>
+          <control type="slider" format="integer"><popup>false</popup></control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="playback" label="30020">
+      <group id="1">
+        <setting id="live_format" type="integer" label="30021">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30022">0</option>
+              <option label="30023">1</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string"/>
+        </setting>
+        <setting id="use_isa" type="boolean" label="30024" help="30025">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="zap_enable" type="boolean" label="30050" help="30051">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="zap_reverse" type="boolean" label="30052" parent="zap_enable">
+          <level>0</level>
+          <default>false</default>
+          <dependencies>
+            <dependency type="enable" setting="zap_enable">true</dependency>
+          </dependencies>
+          <control type="toggle"/>
+        </setting>
+        <setting id="zap_restart_key" type="boolean" label="30053" help="30054">
+          <level>0</level>
+          <default>true</default>
+          <dependencies>
+            <dependency type="enable" setting="zap_enable">true</dependency>
+          </dependencies>
+          <control type="toggle"/>
+        </setting>
+        <setting id="zap_recover" type="boolean" label="30130" help="30131">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="zap_debounce" type="integer" label="30150" help="30151">
+          <level>0</level>
+          <default>6</default>
+          <constraints><minimum>0</minimum><step>1</step><maximum>20</maximum></constraints>
+          <control type="slider" format="integer"><popup>false</popup></control>
+        </setting>
+        <setting id="live_engine" type="integer" label="30152" help="30153">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30154">0</option>
+              <option label="30155">1</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string"/>
+        </setting>
+        <setting id="switch_stop_first" type="boolean" label="30088" help="30089">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="check_stream" type="boolean" label="30080" help="30081">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="check_timeout" type="integer" label="30082" parent="check_stream">
+          <level>0</level>
+          <default>5</default>
+          <constraints><minimum>1</minimum><step>1</step><maximum>20</maximum></constraints>
+          <dependencies>
+            <dependency type="enable" setting="check_stream">true</dependency>
+          </dependencies>
+          <control type="slider" format="integer"><popup>false</popup></control>
+        </setting>
+        <setting id="offline_zap" type="integer" label="30083">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30084">0</option>
+              <option label="30085">1</option>
+            </options>
+          </constraints>
+          <dependencies>
+            <dependency type="enable" setting="check_stream">true</dependency>
+          </dependencies>
+          <control type="spinner" format="string"/>
+        </setting>
+        <setting id="mark_offline" type="boolean" label="30086">
+          <level>0</level>
+          <default>true</default>
+          <dependencies>
+            <dependency type="enable" setting="check_stream">true</dependency>
+          </dependencies>
+          <control type="toggle"/>
+        </setting>
+        <setting id="catchup_style" type="integer" label="30026">
+          <level>1</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30027">0</option>
+              <option label="30028">1</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string"/>
+        </setting>
+        <setting id="catchup_pad" type="integer" label="30029">
+          <level>1</level>
+          <default>5</default>
+          <constraints><minimum>0</minimum><step>1</step><maximum>60</maximum></constraints>
+          <control type="slider" format="integer"><popup>false</popup></control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="parental" label="30070">
+      <group id="1">
+        <setting id="hide_adult" type="boolean" label="30071" help="30072">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="adult_pin" type="string" label="30121" help="30122">
+          <level>0</level>
+          <default/>
+          <constraints><allowempty>true</allowempty></constraints>
+          <dependencies>
+            <dependency type="enable" setting="hide_adult">true</dependency>
+          </dependencies>
+          <control type="edit" format="string">
+            <heading>30121</heading>
+            <hidden>true</hidden>
+          </control>
+        </setting>
+        <setting id="manage_groups" type="action" label="30073" help="30074">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=manage_groups)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="trakt" label="30090">
+      <group id="1">
+        <setting id="trakt_client_id" type="string" label="30091" help="30092">
+          <level>0</level>
+          <default/>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string"><heading>30091</heading></control>
+        </setting>
+        <setting id="trakt_client_secret" type="string" label="30093" help="30092">
+          <level>0</level>
+          <default/>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string">
+            <heading>30093</heading>
+            <hidden>true</hidden>
+          </control>
+        </setting>
+        <setting id="trakt_link" type="action" label="30094">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=trakt_link)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+        <setting id="trakt_scrobble" type="boolean" label="30096" help="30097">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="trakt_sync" type="action" label="30098">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=trakt_sync)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+        <setting id="trakt_unlink" type="action" label="30095">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=trakt_unlink)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="discover" label="30140">
+      <group id="1">
+        <setting id="tmdb_key" type="string" label="30141" help="30142">
+          <level>0</level>
+          <default/>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string"><heading>30141</heading></control>
+        </setting>
+        <setting id="tmdb_lang" type="string" label="30143" help="30144">
+          <level>0</level>
+          <default>en-US</default>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string"><heading>30143</heading></control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="library" label="30110">
+      <group id="1">
+        <setting id="library_path" type="path" label="30111" help="30112">
+          <level>0</level>
+          <default/>
+          <constraints>
+            <allowempty>true</allowempty>
+            <writable>true</writable>
+          </constraints>
+          <control type="button" format="path"><heading>30111</heading></control>
+        </setting>
+        <setting id="lib_auto_update" type="boolean" label="30113">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="lib_update_now" type="action" label="30114">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=lib_update)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="backup" label="30123">
+      <group id="1">
+        <setting id="backup_create" type="action" label="30124" help="30125">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=backup_create)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+        <setting id="backup_restore" type="action" label="30126">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=backup_restore)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+        <setting id="reset_custom" type="action" label="30127">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=reset_custom)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="tvmode" label="30060">
+      <group id="1">
+        <setting id="tv_autoplay" type="boolean" label="30061">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="reminder_lead" type="integer" label="30104">
+          <level>0</level>
+          <default>1</default>
+          <constraints><minimum>0</minimum><step>1</step><maximum>15</maximum></constraints>
+          <control type="slider" format="integer"><popup>false</popup></control>
+        </setting>
+        <setting id="tv_stop_on_exit" type="boolean" label="30087">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="tv_on_startup" type="boolean" label="30062" help="30063">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle"/>
+        </setting>
+      </group>
+    </category>
+
+    <category id="display" label="30030">
+      <group id="1">
+        <setting id="show_epg_in_list" type="boolean" label="30031">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="show_counts" type="boolean" label="30032">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="page_size" type="integer" label="30033">
+          <level>0</level>
+          <default>500</default>
+          <constraints><minimum>0</minimum><step>50</step><maximum>5000</maximum></constraints>
+          <control type="slider" format="integer"><popup>false</popup></control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="background" label="30040">
+      <group id="1">
+        <setting id="bg_enable" type="boolean" label="30041">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="refresh_hours" type="integer" label="30042">
+          <level>0</level>
+          <default>12</default>
+          <constraints><minimum>1</minimum><step>1</step><maximum>168</maximum></constraints>
+          <dependencies>
+            <dependency type="enable" setting="bg_enable">true</dependency>
+          </dependencies>
+          <control type="slider" format="integer"><popup>false</popup></control>
+        </setting>
+        <setting id="epg_enable" type="boolean" label="30043">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="epg_past_days" type="integer" label="30044">
+          <level>0</level>
+          <default>7</default>
+          <constraints><minimum>0</minimum><step>1</step><maximum>30</maximum></constraints>
+          <dependencies>
+            <dependency type="enable" setting="epg_enable">true</dependency>
+          </dependencies>
+          <control type="slider" format="integer"><popup>false</popup></control>
+        </setting>
+        <setting id="epg_offset" type="integer" label="30100" help="30101">
+          <level>0</level>
+          <default>0</default>
+          <constraints><minimum>-720</minimum><step>15</step><maximum>720</maximum></constraints>
+          <dependencies>
+            <dependency type="enable" setting="epg_enable">true</dependency>
+          </dependencies>
+          <control type="slider" format="integer"><popup>false</popup></control>
+        </setting>
+        <setting id="bg_notify" type="boolean" label="30045">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle"/>
+        </setting>
+        <setting id="clear_cache" type="action" label="30102" help="30103">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=clear_cache)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+        <setting id="refresh_now" type="action" label="30048">
+          <level>0</level>
+          <data>RunPlugin(plugin://plugin.video.xtreamcodes/?action=refresh)</data>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="button" format="action"><close>true</close></control>
+        </setting>
+      </group>
+    </category>
+
+  </section>
+</settings>

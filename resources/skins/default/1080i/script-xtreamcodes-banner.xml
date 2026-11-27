@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Channel banner shown over fullscreen video, and the channel-number box. -->
+<window type="dialog">
+  <zorder>1</zorder>
+  <controls>
+    <!-- channel banner -->
+    <control type="group">
+      <visible>String.IsEmpty(Window.Property(digits))</visible>
+      <animation effect="fade" start="0" end="100" time="150">WindowOpen</animation>
+      <animation effect="fade" start="100" end="0" time="200">WindowClose</animation>
+      <control type="image">
+        <left>60</left><top>800</top><width>1800</width><height>230</height>
+        <texture colordiffuse="E6101828">white.png</texture>
+      </control>
+      <control type="image">
+        <left>60</left><top>800</top><width>1800</width><height>5</height>
+        <texture colordiffuse="FF4FA3FF">white.png</texture>
+      </control>
+      <control type="image">
+        <left>90</left><top>830</top><width>200</width><height>120</height>
+        <aspectratio>keep</aspectratio>
+        <texture>$INFO[Window.Property(logo)]</texture>
+      </control>
+      <control type="label">
+        <left>90</left><top>955</top><width>200</width><height>50</height>
+        <font>font13</font><textcolor>FFFFFFFF</textcolor><align>center</align>
+        <label>$INFO[Window.Property(num)]</label>
+      </control>
+      <control type="label">
+        <left>320</left><top>822</top><width>1180</width><height>48</height>
+        <font>font13</font><textcolor>FFFFFFFF</textcolor>
+        <label>$INFO[Window.Property(name)]</label>
+      </control>
+      <control type="label">
+        <left>1500</left><top>822</top><width>330</width><height>48</height>
+        <font>font13</font><textcolor>FFAAB4C8</textcolor><align>right</align>
+        <label>$INFO[System.Time]</label>
+      </control>
+      <control type="label">
+        <left>320</left><top>872</top><width>1510</width><height>40</height>
+        <font>font12</font><textcolor>FF4FA3FF</textcolor>
+        <label>$INFO[Window.Property(now)]</label>
+      </control>
+      <control type="image">
+        <left>320</left><top>918</top><width>1510</width><height>6</height>
+        <texture colordiffuse="33FFFFFF">white.png</texture>
+        <visible>!String.IsEmpty(Window.Property(has_now))</visible>
+      </control>
+      <control type="image" id="10">
+        <left>320</left><top>918</top><width>1</width><height>6</height>
+        <texture colordiffuse="FF4FA3FF">white.png</texture>
+        <visible>!String.IsEmpty(Window.Property(has_now))</visible>
+      </control>
+      <control type="label">
+        <left>320</left><top>934</top><width>1510</width><height>40</height>
+        <font>font12</font><textcolor>FFAAB4C8</textcolor>
+        <label>$INFO[Window.Property(next)]</label>
+      </control>
+      <control type="label">
+        <left>320</left><top>976</top><width>1510</width><height>36</height>
+        <font>font10</font><textcolor>FF8A94A8</textcolor>
+        <label>$INFO[Window.Property(extra)]</label>
+      </control>
+    </control>
+
+    <!-- channel number being typed -->
+    <control type="group">
+      <visible>!String.IsEmpty(Window.Property(digits))</visible>
+      <left>1480</left><top>60</top>
+      <control type="image">
+        <left>0</left><top>0</top><width>380</width><height>190</height>
+        <texture colordiffuse="F0101828">white.png</texture>
+      </control>
+      <control type="image">
+        <left>0</left><top>0</top><width>380</width><height>5</height>
+        <texture colordiffuse="FF4FA3FF">white.png</texture>
+      </control>
+      <control type="label">
+        <left>0</left><top>15</top><width>380</width><height>110</height>
+        <font>font_clock</font><textcolor>FFFFFFFF</textcolor>
+        <align>center</align><aligny>center</aligny>
+        <label>$INFO[Window.Property(digits)]</label>
+      </control>
+      <control type="label">
+        <left>15</left><top>130</top><width>350</width><height>45</height>
+        <font>font12</font><textcolor>FFAAB4C8</textcolor><align>center</align>
+        <label>$INFO[Window.Property(digits_name)]</label>
+      </control>
+    </control>
+  </controls>
+</window>

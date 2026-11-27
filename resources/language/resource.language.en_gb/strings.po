@@ -1,0 +1,382 @@
+# Kodi Media Center language file
+# Addon id: plugin.video.xtreamcodes
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en_GB\n"
+
+msgctxt "#30000"
+msgid "Account"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Server URL (e.g. http://example.com:8080)"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Base address of the Xtream Codes server, including port. Do not include player_api.php."
+msgstr ""
+
+msgctxt "#30003"
+msgid "Username"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Network"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Use a custom User-Agent"
+msgstr ""
+
+msgctxt "#30012"
+msgid "When off, the add-on identifies itself with TiviMate's User-Agent for API calls, EPG download and playback."
+msgstr ""
+
+msgctxt "#30013"
+msgid "Custom User-Agent"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Request timeout (seconds)"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Playback"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Live stream format"
+msgstr ""
+
+msgctxt "#30022"
+msgid "MPEG-TS (.ts)"
+msgstr ""
+
+msgctxt "#30023"
+msgid "HLS (.m3u8)"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Use InputStream Adaptive for HLS"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Requires the InputStream Adaptive add-on. Only used when the live format is HLS."
+msgstr ""
+
+msgctxt "#30026"
+msgid "Catch-up URL style"
+msgstr ""
+
+msgctxt "#30027"
+msgid "/timeshift/ path (standard)"
+msgstr ""
+
+msgctxt "#30028"
+msgid "timeshift.php"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Catch-up: extra minutes after programme end"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Display"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Show what's on now in channel lists"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Show item counts on groups"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Items per page (0 = all)"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Background updates"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Update channel lists in the background"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Update every (hours)"
+msgstr ""
+
+msgctxt "#30043"
+msgid "Download the full EPG (XMLTV)"
+msgstr ""
+
+msgctxt "#30044"
+msgid "Keep past EPG days"
+msgstr ""
+
+msgctxt "#30045"
+msgid "Show progress and notifications"
+msgstr ""
+
+msgctxt "#30048"
+msgid "Update channels and EPG now"
+msgstr ""
+
+msgctxt "#30050"
+msgid "Up/Down changes channel while watching live TV"
+msgstr ""
+
+msgctxt "#30051"
+msgid "Installs a small keymap. Up/Down and CH+/CH- switch to the next or previous channel in the group you started from. In movies, series and catch-up the keys keep their normal behaviour."
+msgstr ""
+
+msgctxt "#30052"
+msgid "Reverse Up/Down direction"
+msgstr ""
+
+msgctxt "#30060"
+msgid "TV mode"
+msgstr ""
+
+msgctxt "#30061"
+msgid "Start playing the last channel when TV mode opens"
+msgstr ""
+
+msgctxt "#30062"
+msgid "Open TV mode when Kodi starts"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Turns the box into a TV: after power-on Kodi goes straight to TV mode."
+msgstr ""
+
+msgctxt "#30070"
+msgid "Parental"
+msgstr ""
+
+msgctxt "#30071"
+msgid "Hide adult content"
+msgstr ""
+
+msgctxt "#30072"
+msgid "Hides adult groups, channels, movies and series (detected from the server's adult flags and group names such as Adult, XXX or 18+)."
+msgstr ""
+
+msgctxt "#30073"
+msgid "Show/hide groups..."
+msgstr ""
+
+msgctxt "#30074"
+msgid "Hide channel groups, movie or series categories you don't want, e.g. other countries or languages."
+msgstr ""
+
+msgctxt "#30080"
+msgid "Check channel is online before playing"
+msgstr ""
+
+msgctxt "#30081"
+msgid "Offline channels show a short notice instead of Kodi's 'playback failed' message. Turn off if your provider allows only one connection and refuses playback."
+msgstr ""
+
+msgctxt "#30082"
+msgid "Online check timeout (seconds)"
+msgstr ""
+
+msgctxt "#30083"
+msgid "When Up/Down reaches an offline channel"
+msgstr ""
+
+msgctxt "#30084"
+msgid "Skip to the next working channel"
+msgstr ""
+
+msgctxt "#30085"
+msgid "Stay on the current channel"
+msgstr ""
+
+msgctxt "#30086"
+msgid "Mark offline channels (greyed out for 10 minutes)"
+msgstr ""
+
+msgctxt "#30087"
+msgid "Stop playback when leaving TV mode"
+msgstr ""
+
+msgctxt "#30090"
+msgid "Trakt"
+msgstr ""
+
+msgctxt "#30091"
+msgid "Trakt Client ID"
+msgstr ""
+
+msgctxt "#30092"
+msgid "Create a free API app at trakt.tv/oauth/applications (Redirect URI: urn:ietf:wg:oauth:2.0:oob) and paste its Client ID and Client Secret here."
+msgstr ""
+
+msgctxt "#30093"
+msgid "Trakt Client Secret"
+msgstr ""
+
+msgctxt "#30094"
+msgid "Link Trakt account"
+msgstr ""
+
+msgctxt "#30095"
+msgid "Unlink Trakt account"
+msgstr ""
+
+msgctxt "#30096"
+msgid "Send what I watch to Trakt (scrobble)"
+msgstr ""
+
+msgctxt "#30097"
+msgid "Movies and episodes played here are marked watched on Trakt after 80%. Live TV is not sent."
+msgstr ""
+
+msgctxt "#30098"
+msgid "Sync Trakt now"
+msgstr ""
+
+msgctxt "#30053"
+msgid "Rewind button restarts the current show (catch-up channels)"
+msgstr ""
+
+msgctxt "#30054"
+msgid "While watching a live channel with catch-up, Rewind asks to watch the current programme from its beginning. 0 recalls the previous channel and Guide opens the grid guide."
+msgstr ""
+
+msgctxt "#30088"
+msgid "Close the current stream before opening the next"
+msgstr ""
+
+msgctxt "#30089"
+msgid "Needed when your plan allows a limited number of connections: otherwise the provider can refuse the new channel (HTTP 403) while the old one is still open. Switching takes a moment longer."
+msgstr ""
+
+msgctxt "#30100"
+msgid "EPG time offset (minutes)"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Shift all guide times, for providers whose guide is off by an hour or more. The guide is rebuilt automatically after changing this."
+msgstr ""
+
+msgctxt "#30102"
+msgid "Clear cached data"
+msgstr ""
+
+msgctxt "#30103"
+msgid "Deletes the downloaded channel lists, TV guide and other cached data, then downloads them again. Favourites, hidden groups, history, logins and settings are kept."
+msgstr ""
+
+msgctxt "#30104"
+msgid "Reminders: minutes before the start"
+msgstr ""
+
+msgctxt "#30110"
+msgid "Library"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Library folder"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Where 'Add to library' writes its files (Movies and TV Shows subfolders). Leave empty to use the add-on's data folder. Add both subfolders to Kodi as video sources once."
+msgstr ""
+
+msgctxt "#30113"
+msgid "Add new episodes of library series automatically"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Update library now"
+msgstr ""
+
+msgctxt "#30121"
+msgid "PIN to show adult content (optional)"
+msgstr ""
+
+msgctxt "#30122"
+msgid "With a PIN, hidden adult content can be shown for 3 hours from the main menu or TV mode. Protect Kodi's settings with a master lock if others could change this."
+msgstr ""
+
+msgctxt "#30123"
+msgid "Backup"
+msgstr ""
+
+msgctxt "#30124"
+msgid "Back up favourites, groups and settings"
+msgstr ""
+
+msgctxt "#30125"
+msgid "Saves favourites, hidden groups, your group names and order, reminders, library list, Continue watching and all settings (including your login) to a file."
+msgstr ""
+
+msgctxt "#30126"
+msgid "Restore from a backup"
+msgstr ""
+
+msgctxt "#30127"
+msgid "Reset group names and order"
+msgstr ""
+
+msgctxt "#30130"
+msgid "If a channel fails to start, retry once, then go back"
+msgstr ""
+
+msgctxt "#30131"
+msgid "Providers sometimes fail a channel for a moment. The add-on tries it once more and, if it still fails, returns to the channel you were watching."
+msgstr ""
+
+msgctxt "#30140"
+msgid "Discover (TMDb)"
+msgstr ""
+
+msgctxt "#30141"
+msgid "TMDb API key"
+msgstr ""
+
+msgctxt "#30142"
+msgid "Free: sign up at themoviedb.org, open Settings > API and copy the API Key (or the long Read Access Token). Used for ratings, votes, popular lists and Discover. This product uses the TMDB API but is not endorsed or certified by TMDB."
+msgstr ""
+
+msgctxt "#30143"
+msgid "TMDb language"
+msgstr ""
+
+msgctxt "#30144"
+msgid "Language for titles and descriptions from TMDb, for example en-US, fr-CA, de-DE."
+msgstr ""
+
+msgctxt "#30150"
+msgid "Channel up/down: wait before tuning (tenths of a second, 0 = off)"
+msgstr ""
+
+msgctxt "#30151"
+msgid "When you press up/down several times in a row, each channel is shown at once but only the one you stop on is opened. This avoids waiting for every channel in between to open and close."
+msgstr ""
+
+msgctxt "#30152"
+msgid "Live TV player engine"
+msgstr ""
+
+msgctxt "#30153"
+msgid "Experimental. ffmpegdirect can switch streams faster on some devices. It needs inputstream.ffmpegdirect installed; if it is missing, the normal player is used."
+msgstr ""
+
+msgctxt "#30154"
+msgid "Kodi default"
+msgstr ""
+
+msgctxt "#30155"
+msgid "inputstream.ffmpegdirect (experimental)"
+msgstr ""

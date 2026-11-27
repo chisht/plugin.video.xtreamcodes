@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.log
+*.zip
+dist/
+# never commit provider details, backups or databases
+*.db
+*.sqlite
+userdata/
+backup*.json
