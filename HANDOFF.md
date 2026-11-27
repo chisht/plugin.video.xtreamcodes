@@ -14,6 +14,14 @@
 - Cross-process state lives in Home window (10000) properties; each remote key
   press runs the add-on in a separate thread/process.
 
+## Kodi repository (updates)
+- `repository.chisht/` is the repository add-on; it points at raw GitHub URLs on the
+  `kodi-repo` branch of this repo (works only once the repo is public).
+- `tools/build_repo.py [outdir]` builds addons.xml, addons.xml.md5, per-zip .sha256,
+  `zips/<id>/<id>-<ver>.zip` and a stable `repository.chisht.zip`.
+- `./publish_repo.sh` runs it in a worktree of `kodi-repo`, commits and pushes.
+  Release = bump `addon.xml` version, commit, `./publish_repo.sh`.
+
 ## Tests
 `tests/` has stub Kodi modules (`tests/stubs`), fake Xtream/TMDb/Trakt servers and
 scenario scripts (`fix12`..`fix20`, `discover`, `guide`, ...). Scripts currently
@@ -35,4 +43,5 @@ Advice given: Settings > Player > Videos > Adjust display refresh rate = Off, MP
 - TV guide search (`epg_pick`) still shows the live/restart popup.
 - Movies/series episodes do not get the "Starting..." note.
 - Own Trakt app keys vs. user-supplied keys; Stalker portal support (needs portal format).
-- Add a licence (owner to choose) before making the repo public.
+- Add a licence (owner to choose) before making the repo public; the Kodi
+  repository's update URLs need the repo to be public.
