@@ -25,7 +25,8 @@ PVR IPTV Simple; everything runs inside the add-on.
 - **Trakt** scrobbling and progress.
 - **Parental**: adult content hidden, with an optional PIN to show it for 3 hours.
 - **Reliable playback**: online check, retry-then-go-back, one-connection-friendly
-  switching, a configurable User-Agent, and background updates.
+  switching, a configurable User-Agent, and background updates. Leaving the add-on
+  (TV mode, the guide, or a list) stops the channel, so your connection is freed.
 - **Skins**: TV mode, the grid guide and the channel banner come in a dark blue
   default look and an STBEmu / Stalker portal look (black and orange).
 - **Backup and restore** of favourites, groups and settings.

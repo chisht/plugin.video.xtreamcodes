@@ -2,7 +2,9 @@ LOGINFO, LOGWARNING, LOGERROR, LOGDEBUG = 1, 2, 3, 0
 LOG = []
 def log(msg, level=1): LOG.append(msg)
 def getCondVisibility(c): return False
-def getInfoLabel(l): return '22.0'
+WINDOWS = {'System.CurrentWindow': 'FullScreenVideo', 'Container.FolderPath': ''}
+def getInfoLabel(l):
+    return WINDOWS.get(l, '')
 class Actor:
     def __init__(self, name='', *a): self.name = name
 class Monitor:

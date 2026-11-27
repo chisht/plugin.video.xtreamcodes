@@ -383,6 +383,36 @@ def offline_notice(name):
     common.notify('%s is offline right now' % name, 3000)
 
 
+def our_live_playing():
+    """The path of our own live stream, or '' when nothing of ours is playing."""
+    player = xbmc.Player()
+    try:
+        if not player.isPlaying():
+            return ''
+        path = player.getPlayingFile()
+    except RuntimeError:
+        return ''
+    try:
+        base = client().base
+    except Exception:
+        return ''
+    return path if path.startswith(base + '/') else ''
+
+
+def stop_playback(reason=''):
+    """Stop our stream (used when the viewer leaves the add-on's windows).
+
+    Only this add-on's own streams are stopped: a movie from the Kodi library
+    keeps playing whatever the viewer does here.
+    """
+    path = our_live_playing()
+    if not path:
+        return False
+    common.log('Stopping playback%s' % (': %s' % reason if reason else ''))
+    xbmc.Player().stop()
+    return True
+
+
 def free_connection():
     """Stop our stream before opening another one.
 
@@ -405,6 +435,84 @@ def free_connection():
         if not player.isPlaying() or monitor.waitForAbort(0.1):
             break
     monitor.waitForAbort(0.2)        # let the server register the disconnect
+    return True
+
+
+# Add-on windows on screen in this process (TV mode, grid guide). Playback is
+# stopped when the last one closes and the viewer leaves the add-on.
+UI_OPEN = [0]
+
+
+def ui_opened():
+    """An add-on window (TV mode, grid guide) came on screen."""
+    UI_OPEN[0] += 1
+    if UI_OPEN[0] == 1:
+        xbmcgui.Window(10000).setProperty(common.PROP_UI_OPEN, '1')
+
+
+def ui_closed(keep_playing=False):
+    """An add-on window closed: stop the stream if none is left on screen.
+
+    keep_playing is for a window that hands back to Kodi's fullscreen video
+    (the grid guide opened over a playing channel): the channel is still on
+    screen, so it keeps playing.
+    """
+    UI_OPEN[0] = max(0, UI_OPEN[0] - 1)
+    if UI_OPEN[0] == 0:
+        xbmcgui.Window(10000).clearProperty(common.PROP_UI_OPEN)
+        if not keep_playing:
+            stop_on_exit()
+
+
+def stop_on_exit():
+    """Stop playing when the viewer leaves the add-on (setting, on by default).
+
+    Applies to every window of the add-on: TV mode, the grid guide (whether it
+    sits over TV mode or over fullscreen video) and leaving fullscreen.
+    """
+    if not common.setting_bool('tv_stop_on_exit'):
+        return False
+    return stop_playback('left the add-on')
+
+
+SETTLE = 6.0   # seconds a channel gets to show its picture before the check
+
+
+def window_open():
+    """True while one of the add-on's own windows (TV mode, grid guide) is up."""
+    return bool(xbmcgui.Window(10000).getProperty(common.PROP_UI_OPEN))
+
+
+def left_addon():
+    """The service's watchdog: True when a channel of ours plays on with nobody
+    watching (the viewer left the add-on by an exit this module cannot see).
+
+    A channel started from a list (Live TV, search, catch-up, a reminder) is
+    resolved by Kodi, and then nothing of the add-on is on screen any more: if
+    the viewer pressed Back out of the add-on, only sound is left.
+    """
+    if not common.setting_bool('tv_stop_on_exit') or not our_live_playing():
+        return False
+    if xbmc.Player().isPlayingVideo() or window_open():
+        return False                  # the picture (or TV mode) is on screen
+    try:
+        if xbmc.getInfoLabel('Container.FolderPath').startswith('plugin://%s' % common.ADDON_ID):
+            return False              # one of our lists is on screen
+    except Exception:
+        pass
+    win = xbmcgui.Window(10000)
+    st = zap_state() or {}
+    try:
+        started = max(float(win.getProperty(PROP_TUNE_T) or 0), float(st.get('t') or 0))
+    except ValueError:
+        started = 0.0
+    if time.time() - started < SETTLE:
+        return False                  # just tuned: the first frame is not up yet
+    try:
+        if xbmc.getCondVisibility('System.HasActiveModalDialog'):
+            return False              # channel banner, settings, a notice...
+    except Exception:
+        pass
     return True
 
 

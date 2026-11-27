@@ -337,7 +337,7 @@
           <constraints><minimum>0</minimum><step>1</step><maximum>15</maximum></constraints>
           <control type="slider" format="integer"><popup>false</popup></control>
         </setting>
-        <setting id="tv_stop_on_exit" type="boolean" label="30087">
+        <setting id="tv_stop_on_exit" type="boolean" label="30087" help="30170">
           <level>0</level>
           <default>true</default>
           <control type="toggle"/>

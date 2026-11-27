@@ -112,8 +112,12 @@ channels).
 **Group options:** rename group, move group, hide this group, show/hide groups,
 and show or hide adult content (when a PIN is set).
 
-When you leave TV mode the stream stops, unless you turn off **Settings → TV mode
-→ Stop playback when leaving TV mode**.
+When you leave the add-on the stream stops, unless you turn off **Settings → TV
+mode → Stop playback when leaving the add-on**. Leaving means Back out of TV
+mode, out of the grid guide, or out of any list (Live TV, catch-up, search, a
+reminder pop-up) while one of this add-on's channels is playing. Kodi otherwise
+keeps a stream started from a list playing in the background — with this on it
+stops, so your connection is free for another device.
 
 The colours and layout of TV mode (and of the grid guide and the channel banner)
 come from **Settings → Display → Skin** — see
@@ -363,7 +367,7 @@ anywhere.
 **Backup**: back up, restore, reset group names and order.
 
 **TV mode**: *Preview the highlighted channel*, start playing the last channel when
-TV mode opens, reminder lead time, stop playback when leaving, open TV mode when
+TV mode opens, reminder lead time, stop playback when leaving the add-on, open TV mode when
 Kodi starts.
 
 **Display**: *Skin* (see below), show what's on now in channel lists, show item

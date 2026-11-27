@@ -101,7 +101,7 @@ class TVWindow(xbmcgui.WindowXML):
         self.prog_fg = self.getControl(PROG_FG)
         self.setProperty('header', common.ADDON_NAME)
 
-        xbmcgui.Window(10000).setProperty(common.PROP_UI_OPEN, '1')
+        playback.ui_opened()
         autoplay = None
         state = self._zap_state()
         if state and self._our_live_playing():
@@ -509,14 +509,11 @@ class TVWindow(xbmcgui.WindowXML):
 
     def close(self):
         self._stop.set()
-        xbmcgui.Window(10000).clearProperty(common.PROP_UI_OPEN)
-        if common.setting_bool('tv_stop_on_exit'):
-            player = xbmc.Player()
-            try:
-                if player.isPlaying() and player.getPlayingFile().startswith(client().base + '/'):
-                    player.stop()
-            except RuntimeError:
-                pass
+        if getattr(self, '_ui_done', False):   # onAction Back, then doModal returns
+            xbmcgui.WindowXML.close(self)
+            return
+        self._ui_done = True
+        playback.ui_closed()
         if self._digit_timer:
             self._digit_timer.cancel()
         xbmcgui.WindowXML.close(self)
@@ -710,7 +707,6 @@ def open_tv(before_show=None):
         win.doModal()
     finally:
         playback.UI['win'] = None
-        win._stop.set()
-        xbmcgui.Window(10000).clearProperty(common.PROP_UI_OPEN)
+        win.close()
         win.catalog.close()
         del win
