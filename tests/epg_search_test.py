@@ -52,6 +52,7 @@ from resources.lib.catalog import Catalog
 c = Catalog(playback.common.catalog_path()); row = c.get('live', '101'); c.close()
 _, li = playback.live_item(row)
 check('ffmpegdirect used when selected', li.props.get('inputstream') == 'inputstream.ffmpegdirect' and 'inputstreamaddon' not in li.props)
+xbmc.Player.isPlayingVideo = lambda self: False   # FFmpeg Direct never shows a picture
 playback.start_live(row, '1')
 rec = playback.LiveRecovery(); n = len(xbmc.Player.PLAYED); xbmcgui.DIALOGS.clear()
 rec.onPlayBackError()
@@ -60,5 +61,8 @@ check('after it fails: retried once (%d)' % len(retried), len(retried) == 1)
 _, li = playback.live_item(row)
 check('ffmpegdirect no longer used this session', 'inputstream' not in li.props)
 check('viewer told', any('FFmpeg Direct' in str(d) for d in xbmcgui.DIALOGS))
+import threading
+for t in [t for t in threading.enumerate() if t.name == 'ffd-watch']:
+    t.join(20)
 srv.shutdown()
 sys.exit(1 if fails else 0)

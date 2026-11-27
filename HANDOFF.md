@@ -1,4 +1,4 @@
-# Handoff (state at version 1.13.3)
+# Handoff (state at version 1.13.4)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -31,6 +31,15 @@ change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
 (a good first cleanup: convert to pytest with asserts).
 
 ## Latest work
+1.13.4: on the real box `LiveRecovery._failed` logged nothing for three
+ffmpegdirect failures (callbacks did arrive for onAVStarted, so cause unknown).
+`playback.watch_engine(row)` now runs after every live play() (start_live and
+zapper): until ffmpegdirect has shown a picture this session, a thread watches up
+to 15 s; if nothing is playing after the start-up grace, it sets PROP_FFD_FAILED,
+marks the failure handled for LiveRecovery, notifies and replays with Kodi's
+player. `_failed` now logs why it skips (retry off / not our channel / already
+handled) - look for these in the next log. Test: `tests/ffd_watch_test.py`.
+
 1.13.3: guide search reworked. `EPG.search()` returns (coming, aired) queried and
 limited separately (before: one list from 7 days ago, oldest first, LIMIT 300
 before filtering, so now/upcoming could be cut off). Results in sections On now /

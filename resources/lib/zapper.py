@@ -156,10 +156,13 @@ def _zap_tune(state, rows, idx, step, skip, banner=True):
             extra = '%d of %d' % (pos + 1, len(rows))
             if skipped:
                 extra += '   -   skipped %d offline' % skipped
-            if banner:   # banner first, then open the stream
-                overlay.show_banner(row, extra, during=lambda: player.play(path, li))
-            else:
+            def tune():
                 player.play(path, li)
+                playback.watch_engine(row)
+            if banner:   # banner first, then open the stream
+                overlay.show_banner(row, extra, during=tune)
+            else:
+                tune()
             return
         if not skip:
             # Stay on the current channel; the next press continues past this one.

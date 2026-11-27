@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.xtreamcodes"
        name="Xtream Codes IPTV"
-       version="1.13.3"
+       version="1.13.4"
        provider-name="custom">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
@@ -16,7 +16,7 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/chisht/plugin.video.xtreamcodes</source>
-    <news>1.13.3: clearer TV guide search - results in sections (On now, Coming up, Catch-up), OK on a programme that is on now plays it live, and what is on now or coming up is no longer pushed out by old programmes. If the experimental FFmpeg Direct player cannot play, Kodi's player is used automatically. 1.13.2: less writing to storage during guide updates.</news>
+    <news>1.13.4: if the experimental FFmpeg Direct player cannot start a channel, the add-on now notices by itself and switches to Kodi's player (1.13.3 depended on a signal from Kodi that does not always arrive). 1.13.3: clearer TV guide search.</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>

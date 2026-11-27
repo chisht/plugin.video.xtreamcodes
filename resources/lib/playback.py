@@ -36,6 +36,54 @@ def use_ffmpegdirect():
             and not xbmcgui.Window(10000).getProperty(PROP_FFD_FAILED))
 
 
+FFD_WATCH = 15   # seconds to wait for the first picture from FFmpeg Direct
+
+
+def watch_engine(row, windowed=False):
+    """Call right after play(). FFmpeg Direct cannot always load (it may be built
+    for another Kodi), and then every channel fails. Until it has shown a picture
+    once this session, watch: if playback dies before a picture, use Kodi's own
+    player from now on and play the channel again. Does not rely on Kodi's
+    failure callbacks reaching the service."""
+    win = xbmcgui.Window(10000)
+    if not use_ffmpegdirect() or win.getProperty(PROP_FFD_OK):
+        return
+    st0 = zap_state() or {}
+
+    def run():
+        monitor = xbmc.Monitor()
+        player = xbmc.Player()
+        start = time.time()
+        idle = 0
+        while time.time() - start < FFD_WATCH:
+            if monitor.waitForAbort(0.25):
+                return
+            if win.getProperty(PROP_FFD_OK) or win.getProperty(PROP_FFD_FAILED):
+                return            # decided elsewhere (picture seen, or recovery acted)
+            st = zap_state() or {}
+            if (st.get('id'), st.get('t')) != (st0.get('id'), st0.get('t')):
+                return            # another channel was chosen meanwhile
+            if player.isPlayingVideo():
+                win.setProperty(PROP_FFD_OK, '1')
+                return
+            # nothing playing for a moment (after a short start-up grace): it failed
+            idle = 0 if player.isPlaying() else idle + 1
+            if idle >= 3 and time.time() - start > 1.5:
+                break
+        else:
+            return
+        win.setProperty(PROP_FFD_FAILED, '1')
+        win.setProperty(PROP_HANDLED, '%s|%s' % (st0.get('id'), st0.get('t')))  # recovery: hands off
+        common.log('inputstream.ffmpegdirect did not start %s: using Kodi\'s player from now on'
+                   % row['name'])
+        common.notify('FFmpeg Direct did not work - using Kodi\'s player instead', 5000)
+        xbmc.executebuiltin('Dialog.Close(okdialog,true)')   # Kodi's "playback failed"
+        path, li = live_item(row)
+        remember_zap(st0.get('cat'), row['stream_id'], row=row, windowed=windowed)
+        player.play(path, li, windowed)
+    threading.Thread(target=run, name='ffd-watch').start()
+
+
 def play_item(url, kind='file', info=None, label='', live=False):
     """Build a playable ListItem. kind: 'ts' | 'hls' | 'file'. Returns (path, li)."""
     headers = common.kodi_header_string()
@@ -326,6 +374,7 @@ def start_live(row, cat_id, windowed=False, announce=True):
     # timing for the "Picture on screen" log line (was only set by Up/Down)
     xbmcgui.Window(10000).setProperty(PROP_TUNE_T, '%f' % t_start)
     xbmc.Player().play(path, li, windowed)
+    watch_engine(row, windowed)
     return True
 
 
@@ -527,10 +576,12 @@ class LiveRecovery(xbmc.Player):
 
     def _failed(self, error=False):
         if not common.setting_bool('zap_recover'):
+            common.log('Playback %s: retry is off in settings' % ('error' if error else 'ended'))
             return
         win = xbmcgui.Window(10000)
         st = zap_state()
         if not st or st.get('mode'):
+            common.log('Playback %s: not one of our live channels' % ('error' if error else 'ended'))
             return
         if time.time() - self._acted < 1.5:
             return             # second report of the failure just handled (error + ended)
@@ -543,6 +594,7 @@ class LiveRecovery(xbmc.Player):
             return
         key = '%s|%s' % (st['id'], st.get('t'))
         if win.getProperty(PROP_HANDLED) == key:
+            common.log('Playback %s: already handled' % ('error' if error else 'ended'))
             return             # Kodi can report one failure twice (error + ended)
         win.setProperty(PROP_HANDLED, key)
         cat = Catalog(common.catalog_path())
