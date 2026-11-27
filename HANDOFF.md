@@ -1,4 +1,4 @@
-# Handoff (state at version 1.13.0)
+# Handoff (state at version 1.13.1)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -31,6 +31,15 @@ change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
 (a good first cleanup: convert to pytest with asserts).
 
 ## Latest work
+1.13.1 (real-device log: /storage went read-only, EROFS, Kodi's own DB too): the
+service died on `save_state` in `do_sync`'s finally. Now saves in do_sync are
+non-fatal, the loop body is `tick()` wrapped in try/except, the last attempt is
+also kept in memory (`LAST_TRY`) so an unsaveable state.json cannot cause a retry
+every 5 s, and `STOP` ends the key-listener thread with the service (Kodi logged
+"waiting on thread" for it). Test: `tests/readonly_test.py`.
+Idea: the EPG is downloaded to `xmltv.xml.part` before parsing; streaming it into
+the DB would cut storage writes (SD-card wear) - check its size on the real box.
+
 1.13.0: fast remote keys. Zap logic moved from main.py to `resources/lib/zapper.py`
 (`handle(key, d, fb)`). With setting `zap_fast` (default on) the keymap sends
 `NotifyAll(plugin.video.xtreamcodes,zap.<section>.<key>)`; `service.KeyListener`
