@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.xtreamcodes"
        name="Xtream Codes IPTV"
-       version="1.12.3"
+       version="1.12.4"
        provider-name="custom">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
@@ -17,7 +17,7 @@
     <platform>all</platform>
     <license>MIT</license>
     <source>https://github.com/chisht/plugin.video.xtreamcodes</source>
-    <news>1.12.3: fixed TV mode stopping its background updates when two parts of the add-on saved a file at once; correct "Picture on screen" timing for channels started from TV mode and the guide. 1.12.2: new description and user guide.</news>
+    <news>1.12.4: Up/Down pressed right as a channel starts playing is no longer ignored. 1.12.3: fixed TV mode background updates stopping; correct channel start timing in the log.</news>
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>
