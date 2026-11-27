@@ -35,6 +35,27 @@ def fallback_action(key, fb=None, d='0'):
     return ZAP_FALLBACK.get(key, 'Noop')
 
 
+def _recording_key(key):
+    """Info / Guide while a catch-up recording from this add-on plays: the channel
+    banner (with the recording) or the add-on's grid guide at that channel.
+    Other keys keep their normal job (seeking) in recordings."""
+    rec = playback.recording()
+    if rec is None:
+        return False
+    catalog = Catalog(common.catalog_path())
+    row = catalog.get('live', rec['id'])
+    catalog.close()
+    if row is None:
+        return False
+    if key == 'guide':
+        from .guide import open_guide
+        open_guide(playback.own_group(row), row['stream_id'])
+    else:
+        from . import overlay
+        overlay.show_banner(row, 'Recording: %s' % rec.get('title') if rec.get('title') else 'Recording')
+    return True
+
+
 def handle(key='up', d='0', fb=None):
     """Remote keys in fullscreen video (called from the keymap).
 
@@ -44,6 +65,8 @@ def handle(key='up', d='0', fb=None):
     """
     state = playback.zap_context()   # also while a just-tuned channel is opening
     if not state:
+        if key in ('info', 'guide') and _recording_key(key):
+            return
         return xbmc.executebuiltin(fallback_action(key, fb, d))
     from . import overlay
     if key == 'digit':

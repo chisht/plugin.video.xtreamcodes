@@ -1,4 +1,4 @@
-# Handoff (state at version 1.13.4)
+# Handoff (state at version 1.13.5)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -31,6 +31,14 @@ change these to the repo checkout (`.`) and `tests/stubs`, then run e.g.
 (a good first cleanup: convert to pytest with asserts).
 
 ## Latest work
+1.13.5: `playback.channel_label(row)` ("num  name") used for live ListItems and
+catch-up ("num  name: programme"; `start_catchup(..., row=)`). `PROP_RECORDING`
+remembers the catch-up being played; `playback.recording()` returns it while a
+/timeshift/ file plays, and `zapper._recording_key` makes Info (banner with
+"Recording: ...") and Guide (our grid at that channel) work during recordings;
+other keys keep Kodi's behaviour. Guide search: OK on "Coming up" asks (reminder /
+watch now / grid); context-menu reminder passes `do=reminder`.
+
 1.13.4: on the real box `LiveRecovery._failed` logged nothing for three
 ffmpegdirect failures (callbacks did arrive for onAVStarted, so cause unknown).
 `playback.watch_engine(row)` now runs after every live play() (start_live and

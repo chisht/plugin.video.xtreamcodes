@@ -113,12 +113,22 @@ def play_item(url, kind='file', info=None, label='', live=False):
     return path, li
 
 
+def channel_label(row):
+    """'12  CNN': channel number (if any) and name, for player info."""
+    try:
+        num = row['num']
+    except (KeyError, IndexError, TypeError):
+        num = None
+    return '%s  %s' % (num, row['name']) if num else row['name']
+
+
 def live_item(row):
     """(path, ListItem) for a catalog channel row."""
     hls = common.setting_int('live_format') == 1
     url = client().live_url(row['stream_id'], 'm3u8' if hls else 'ts')
+    label = channel_label(row)
     path, li = play_item(url, 'hls' if hls else 'ts',
-                         {'title': row['name'], 'mediatype': 'video'}, label=row['name'], live=True)
+                         {'title': label, 'mediatype': 'video'}, label=label, live=True)
     if row['icon']:
         li.setArt({'thumb': row['icon'], 'icon': row['icon']})
     return path, li
@@ -378,7 +388,37 @@ def start_live(row, cat_id, windowed=False, announce=True):
     return True
 
 
-def start_catchup(stream_id, start, duration_min, title, windowed=False, restart=False):
+PROP_RECORDING = common.ADDON_ID + '.recording'   # catch-up playing: {id, title, start}
+
+
+def recording():
+    """The catch-up programme playing now (from this add-on), or None."""
+    raw = xbmcgui.Window(10000).getProperty(PROP_RECORDING)
+    try:
+        rec = json.loads(raw) if raw else None
+    except ValueError:
+        return None
+    if not rec:
+        return None
+    player = xbmc.Player()
+    try:
+        playing = player.getPlayingFile() if player.isPlaying() else ''
+    except RuntimeError:
+        playing = ''
+    base = client().base
+    if playing.startswith(base + '/timeshift/') or '/streaming/timeshift.php' in playing:
+        return rec
+    return None
+
+
+def start_catchup(stream_id, start, duration_min, title, windowed=False, restart=False, row=None):
+    """row: the channel, so the player shows "number  channel: programme"."""
+    if row is not None:
+        shown = '%s: %s' % (channel_label(row), title) if title and title != row['name'] else channel_label(row)
+    else:
+        shown = title
+    xbmcgui.Window(10000).setProperty(PROP_RECORDING, json.dumps(
+        {'id': str(stream_id), 'title': title or '', 'start': start}))
     if not restart:
         st = zap_state()
         if st and st.get('mode'):   # plain catch-up: Up/Down keep their normal job
@@ -386,13 +426,15 @@ def start_catchup(stream_id, start, duration_min, title, windowed=False, restart
             xbmcgui.Window(10000).setProperty(common.PROP_ZAP, json.dumps(st))
     cl = client()
     url = cl.catchup_url(stream_id, start, duration_min, common.setting_int('catchup_style'))
-    announce_start(title)
+    announce_start(shown)
     free_connection()
-    if not check(url, name=title):
+    if not check(url, name=shown):
         announce_end()
         common.notify('This recording is not available', 3000)
         return False
-    path, li = play_item(url, 'ts', {'title': title, 'mediatype': 'video'}, label=title)
+    path, li = play_item(url, 'ts', {'title': shown, 'mediatype': 'video'}, label=shown)
+    if row is not None and row['icon']:
+        li.setArt({'thumb': row['icon'], 'icon': row['icon']})
     xbmcgui.Window(10000).clearProperty(common.ADDON_ID + '.trakt_now')
     xbmc.Player().play(path, li, windowed)
     return True
@@ -429,7 +471,7 @@ def play_programme(row, p, windowed=False):
     """Catch-up for a past programme dict {start, stop, title}."""
     start = catchup_start(row['stream_id'], p['start'])
     dur = int(math.ceil((p['stop'] - p['start']) / 60.0)) + common.setting_int('catchup_pad', 5)
-    return start_catchup(row['stream_id'], start, dur, p.get('title') or row['name'], windowed)
+    return start_catchup(row['stream_id'], start, dur, p.get('title') or row['name'], windowed, row=row)
 
 
 def restart(row, cat_id, windowed=False, confirm=False):
@@ -450,7 +492,7 @@ def restart(row, cat_id, windowed=False, confirm=False):
         return False
     start = p['start_str'] or time.strftime('%Y-%m-%d:%H-%M', time.localtime(p['start']))
     dur = int(math.ceil((p['stop'] - p['start']) / 60.0)) + common.setting_int('catchup_pad', 5)
-    if not start_catchup(row['stream_id'], start, dur, title, windowed, restart=True):
+    if not start_catchup(row['stream_id'], start, dur, title, windowed, restart=True, row=row):
         return False
     remember_zap(cat_id, row['stream_id'], row=row, mode='restart')
     return True

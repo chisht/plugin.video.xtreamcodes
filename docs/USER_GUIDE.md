@@ -182,6 +182,10 @@ Channels whose provider keeps an archive (TV archive) support:
   start. It's in the channel's context menu, the grid guide's menu, and on the
   Rewind key while watching live.
 
+While a recording plays, **Info** shows the channel banner with the
+recording's title, and **Guide** (or **E**) opens the TV guide at that
+channel. Up/Down and the other keys keep their normal job (seeking).
+
 Programmes play a few extra minutes past their listed end, so you don't miss
 the ending (**Settings → Playback → Catch-up: extra minutes after programme
 end**). If catch-up doesn't play, try the other **Catch-up URL style**.
@@ -223,8 +227,9 @@ air now, By genre, By decade. Set **TMDb language** (for example `en-US` or
   title (for example `news` or `simpsons`). Results come in three sections:
   - **On now**: OK watches the channel live. On catch-up channels, the context
     menu has **Watch from the beginning**.
-  - **Coming up**: OK sets a reminder (or removes it). "(reminder set)" shows
-    on those you already picked.
+  - **Coming up**: OK asks what you want: **Set reminder** (or remove it),
+    **Watch <channel> now**, or **TV guide (grid)** at that channel.
+    "(reminder set)" shows on those you already picked.
   - **Catch-up (already aired)**: newest first. OK plays the programme. Only
     channels with a TV archive appear here.
 

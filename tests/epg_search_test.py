@@ -45,6 +45,40 @@ run(url[url.index('?'):])
 check('OK on "on now" plays live without a question', len(xbmc.Player.PLAYED) == n + 1 and '/live/' in xbmc.Player.PLAYED[-1][0]
       and not [d for d in xbmcgui.DIALOGS if d[0] == 'contextmenu'])
 
+# OK on an upcoming programme asks; "watch now" plays the channel with its number
+next_items = xbmcplugin.ITEMS[i_next + 1:i_past]
+url = [u for u, li, _ in next_items if 'News One' in li.label][0]
+xbmcgui.DIALOGS.clear(); xbmcgui.Dialog.CTX = 1; n = len(xbmc.Player.PLAYED)
+run(url[url.index('?'):])
+asked = [d[1] for d in xbmcgui.DIALOGS if d[0] == 'ctx']
+check('upcoming: asks %s' % (asked[:1],), asked and asked[0][0].startswith('Set reminder') and asked[0][1] == 'Watch 1  News One now')
+check('upcoming -> "watch now" plays the channel, labelled "1  News One"',
+      len(xbmc.Player.PLAYED) == n + 1 and xbmc.Player.PLAYED[-1][1] == '1  News One')
+xbmcgui.Dialog.CTX = 0
+from resources.lib import reminders
+run(url[url.index('?'):])
+check('upcoming -> "set reminder" sets it', len(reminders.load()) == 1)
+xbmcgui.Dialog.CTX = -1; n = len(xbmc.Player.PLAYED)
+run(url[url.index('?'):])
+check('upcoming -> cancel does nothing', len(xbmc.Player.PLAYED) == n and len(reminders.load()) == 1)
+
+# a recording from search: labelled with channel; Info and Guide work while it plays
+url = past_items[0][0]
+n = len(xbmc.Player.PLAYED); run(url[url.index('?'):])
+played = xbmc.Player.PLAYED[-1]
+check('recording labelled "%s"' % played[1], len(xbmc.Player.PLAYED) == n + 1 and played[1].startswith('1  News One: ') and '/timeshift/' in played[0])
+from resources.lib import zapper, overlay
+banners = []
+overlay.show_banner = lambda row, extra='', during=None: banners.append((row['name'], extra))
+xbmc.BUILTINS.clear(); zapper.handle('info')
+check('Info during the recording: channel banner %s' % banners, banners and banners[-1][0] == 'News One' and banners[-1][1].startswith('Recording: '))
+import resources.lib.guide as guide_mod
+opened = []
+guide_mod.open_guide = lambda cat='*', sid=None, before_show=None: opened.append(sid)
+zapper.handle('guide')
+check('Guide during the recording opens the add-on grid at the channel (%s)' % opened, opened == ['101'] and not xbmc.BUILTINS)
+xbmc.Player.FILE = ''
+
 # FFmpeg Direct cannot load: first failure switches to Kodi's player for the session
 S['live_engine'] = '1'
 xbmc.getCondVisibility = lambda c: 'inputstream.ffmpegdirect' in c

@@ -35,7 +35,7 @@ def check(name, ok):
 # Channel 1 just tuned, Kodi still opening it (no video yet).
 playback.start_live(rows[0], '1'); OPENING['on'] = True
 n = len(P.PLAYED); press()
-check('Up while channel is opening -> Channel 2', len(P.PLAYED) == n + 1 and P.PLAYED[-1][1] == 'Channel 2')
+check('Up while channel is opening -> Channel 2', len(P.PLAYED) == n + 1 and P.PLAYED[-1][1] == '2  Channel 2')
 
 # Long after tuning, nothing playing: the key keeps Kodi's normal action.
 P.FILE = ''; win = xbmcgui.Window(10000)
@@ -53,6 +53,6 @@ check('Up while a movie opens -> Kodi action', len(P.PLAYED) == n and xbmc.BUILT
 # Normal case: channel playing.
 OPENING['on'] = False; playback.start_live(rows[2], '1')
 n = len(P.PLAYED); press()
-check('Up while channel plays -> Channel 4', len(P.PLAYED) == n + 1 and P.PLAYED[-1][1] == 'Channel 4')
+check('Up while channel plays -> Channel 4', len(P.PLAYED) == n + 1 and P.PLAYED[-1][1] == '4  Channel 4')
 srv.shutdown()
 sys.exit(1 if fails else 0)

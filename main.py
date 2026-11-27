@@ -157,7 +157,10 @@ def zap():
 
 def play_catchup():
     dur = int(ARGS.get('dur', '60')) + common.setting_int('catchup_pad', 5)
-    playback.start_catchup(ARGS['id'], ARGS['start'], dur, ARGS.get('title', ''))
+    catalog = Catalog(common.catalog_path())
+    row = catalog.get('live', ARGS['id']) if catalog.exists() else None
+    catalog.close()
+    playback.start_catchup(ARGS['id'], ARGS['start'], dur, ARGS.get('title', ''), row=row)
 
 
 def play_vod():
@@ -1065,7 +1068,7 @@ def search_epg():
             sections['now' if p['start'] <= now else 'next'].append((p, row))
     count = 0
     for key, heading, ok_does in (('now', 'On now', 'OK: watch live'),
-                                  ('next', 'Coming up', 'OK: set or remove a reminder'),
+                                  ('next', 'Coming up', 'OK: set a reminder, watch the channel now, or open the TV guide'),
                                   ('past', 'Catch-up (already aired)', 'OK: watch this programme')):
         if not sections[key]:
             continue
@@ -1090,7 +1093,8 @@ def _epg_hit(p, row, kind, ok_does, has_reminder):
         if row['archive']:
             ctx.append(('Watch from the beginning', 'RunPlugin(%s)' % build_url(**dict(q, do='restart'))))
     elif kind == 'next':
-        ctx.append(('Remove reminder' if has_reminder else 'Set reminder', 'RunPlugin(%s)' % build_url(**q)))
+        ctx.append(('Remove reminder' if has_reminder else 'Set reminder',
+                    'RunPlugin(%s)' % build_url(**dict(q, do='reminder'))))
     ctx.append(('Watch %s live' % row['name'], 'RunPlugin(%s)' % build_url(**dict(q, do='live'))))
     ctx.append(('TV guide (grid)', 'RunPlugin(%s)' % build_url(action='grid', id=row['stream_id'])))
     add_item(label, q, art=art_for(row['icon']), context=ctx,
@@ -1120,6 +1124,19 @@ def epg_pick():
         return playback.start_live(row, cat)
     if p['stop'] <= now:
         return playback.play_programme(row, p)
+    if do != 'reminder':
+        # Not on yet: ask, instead of quietly setting a reminder.
+        has = reminders.has(row['stream_id'], p['start'])
+        options = ['Remove reminder' if has else 'Set reminder for %s' % common.fmt_day_time(p['start']),
+                   'Watch %s now' % playback.channel_label(row), 'TV guide (grid)']
+        choice = xbmcgui.Dialog().contextmenu(options)
+        if choice == 1:
+            return playback.start_live(row, cat)
+        if choice == 2:
+            from resources.lib.guide import open_guide
+            return open_guide(cat, row['stream_id'])
+        if choice != 0:
+            return
     reminders.toggle(row, p)
     xbmc.executebuiltin('Container.Refresh')
 

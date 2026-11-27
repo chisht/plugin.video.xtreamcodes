@@ -49,10 +49,10 @@ def notify(method, sender='plugin.video.xtreamcodes'):
     for t in set(threading.enumerate()) - before:
         t.join(10)
 n = len(P.PLAYED); t0 = time.time(); notify('Other.zap.remote.up')
-check('service: Up -> Channel 2 (%.2fs)' % (time.time() - t0), len(P.PLAYED) == n + 1 and P.PLAYED[-1][1] == 'Channel 2')
+check('service: Up -> Channel 2 (%.2fs)' % (time.time() - t0), len(P.PLAYED) == n + 1 and P.PLAYED[-1][1] == '2  Channel 2')
 check('service: banner shown', banners[-1:] == ['Channel 2'])
 n = len(P.PLAYED); notify('Other.zap.remote.down')
-check('service: Down -> Channel 1', len(P.PLAYED) == n + 1 and P.PLAYED[-1][1] == 'Channel 1')
+check('service: Down -> Channel 1', len(P.PLAYED) == n + 1 and P.PLAYED[-1][1] == '1  Channel 1')
 n = len(P.PLAYED); notify('Other.zap.remote.up', sender='someone.else'); notify('Other.unrelated')
 check('service ignores other senders/messages', len(P.PLAYED) == n)
 P.FILE = 'http://127.0.0.1/movie/u/p/1.mkv'; xbmc.BUILTINS.clear(); notify('Other.zap.keyboard.up')
