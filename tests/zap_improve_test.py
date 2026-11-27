@@ -25,7 +25,8 @@ S = xbmcaddon.SETTINGS
 S.update(server='http://127.0.0.1:%d' % srv.server_address[1], username='u', password='p@ss',
          epg_enable='false', page_size='0', check_stream='false', zap_reverse='false',
          zap_debounce='0', show_counts='true', switch_stop_first='true', zap_resume='true',
-         tv_autoplay='false', tv_preview='false', tv_stop_on_exit='true', hide_adult='false')
+         tv_autoplay='false', tv_preview='false', tv_stop_on_exit='true', hide_adult='false',
+         mark_offline='true')
 
 from resources.lib import sync, playback, overlay, tvwindow, zapper   # noqa: E402
 from resources.lib.catalog import Catalog, live_rows                  # noqa: E402
@@ -51,7 +52,7 @@ order = []
 real_check, real_free = playback.check_live, playback.free_connection
 
 
-def fake_check(row):
+def fake_check(row, fresh=False):
     order.append(('check %s' % row['name'], bool(P.FILE)))
     return True
 
@@ -63,20 +64,48 @@ def fake_free():
 
 
 playback.check_live, playback.free_connection = fake_check, fake_free
+real_start_live = playback.start_live
 playback.start_live(rows[0], '1')
 P.FILE = playback.live_item(rows[0])[0]           # channel 1 plays
 order[:] = []
 playback.start_live(rows[1], '1', announce=False)
-check('with "keep the checked channel playing" the check runs while the old stream plays: %s'
-      % (order,), order[:2] == [('check Channel 2', True), ('stop', True)])
-S['zap_resume'] = 'false'
-order[:] = []
-P.FILE = playback.live_item(rows[0])[0]
-playback.start_live(rows[1], '1', announce=False)
-check('setting off -> the connection is freed before the check: %s' % (order,),
+check('the stream is stopped before the check (one-connection plans: %s)' % (order,),
       order[:2] == [('stop', True), ('check Channel 2', False)])
-S['zap_resume'] = 'true'
+playback.start_live = real_start_live
 playback.check_live, playback.free_connection = real_check, real_free
+
+# a channel that just played is not probed again; a forced check still is
+playback.forget_checks()
+probes = []
+real_probe = playback.probe
+playback.probe = lambda url, timeout: (probes.append(url), (True, ''))[1]
+S['check_stream'] = 'true'
+playback.check_live(rows[0], fresh=True)
+n = len(probes)
+playback.check_live(rows[0])
+check('a channel checked a moment ago is not probed again (%d probe)' % (len(probes) - n),
+      len(probes) == n)
+playback.check_live(rows[0], fresh=True)
+check('fresh=True probes it anyway', len(probes) == n + 1)
+playback.probe = lambda url, timeout: (probes.append(url), (False, 'HTTP 403'))[1]
+playback.check_live(rows[1], fresh=True)                                # a failure...
+n = len(probes)
+check('a failed channel is not probed again either (%d)' % (n,),
+      playback.check_live(rows[1]) is False and len(probes) == n)
+playback.probe = real_probe
+S['check_stream'] = 'false'
+playback.forget_checks()
+check('forget_checks() clears the marks', not playback.check_cached(rows[0]['stream_id'])[0])
+
+# a channel that really started playing drops any wrong 'offline' mark
+playback.set_offline(rows[0]['stream_id'], True)
+check('channel marked offline', playback.is_offline(rows[0]['stream_id']))
+st = {'id': rows[0]['stream_id'], 'cat': '1', 't': time.time()}
+xbmcgui.Window(10000).setProperty(playback.common.PROP_ZAP, playback.common.json.dumps(st))
+playback.LiveRecovery().onAVStarted()
+check('playing clears the mark (and the channel is trusted for 10 min)',
+      not playback.is_offline(rows[0]['stream_id'])
+      and playback.check_cached(rows[0]['stream_id']) == (True, True))
 
 # --------------------------------------------------------- zapping with CH+/CH-
 P.PLAYED.clear()

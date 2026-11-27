@@ -238,10 +238,89 @@ def set_offline(stream_id, offline):
     xbmcgui.Window(10000).setProperty(common.PROP_OFFLINE, json.dumps(data))
 
 
+CHECK_FOR = 10 * 60   # seconds a channel's 'online' answer is trusted
+
+
+def check_cached(stream_id):
+    """(known, ok): what a previous stream check said about this channel.
+
+    A channel that was playing is not probed again for CHECK_FOR seconds, and a
+    channel that failed is not probed again either (it is already marked offline).
+    On a slow box the probe costs a second per channel change, and on a
+    one-connection plan it is the restart of the very stream we just closed.
+    """
+    raw = xbmcgui.Window(10000).getProperty(common.PROP_CHECKED)
+    try:
+        data = json.loads(raw) if raw else {}
+    except ValueError:
+        data = {}
+    ok_at, bad_at = data.get(str(stream_id), (0, 0))
+    now = time.time()
+    if bad_at and now - bad_at < OFFLINE_FOR:
+        return True, False
+    if ok_at and now - ok_at < CHECK_FOR:
+        return True, True
+    return False, False
+
+
+def mark_checked(stream_id, ok):
+    """Remember the result of a stream check for this channel."""
+    raw = xbmcgui.Window(10000).getProperty(common.PROP_CHECKED)
+    try:
+        data = json.loads(raw) if raw else {}
+    except ValueError:
+        data = {}
+    now = time.time()
+    still = {k: v for k, v in data.items() if max(v[0] + CHECK_FOR, v[1] + OFFLINE_FOR) > now}
+    still[str(stream_id)] = (now, 0) if ok else (0, now)
+    xbmcgui.Window(10000).setProperty(common.PROP_CHECKED, json.dumps(still))
+
+
+def check_fresh(stream_id):
+    """Forget what was known about a channel, so it is checked again."""
+    try:
+        raw = xbmcgui.Window(10000).getProperty(common.PROP_CHECKED)
+        data = json.loads(raw) if raw else {}
+    except ValueError:
+        data = {}
+    if data.pop(str(stream_id), None) is not None:
+        xbmcgui.Window(10000).setProperty(common.PROP_CHECKED, json.dumps(data))
+
+
+def forget_checks():
+    """Drop every remembered stream-check result ('Clear cached data')."""
+    win = xbmcgui.Window(10000)
+    win.clearProperty(common.PROP_CHECKED)
+    win.clearProperty(common.PROP_OFFLINE)
+    _OFFLINE_CACHE['t'] = 0.0
+
+
 def probe(url, timeout):
-    """Open the stream and read its first bytes. Returns (ok, reason)."""
-    req = urllib.request.Request(url, headers={
-        'User-Agent': common.user_agent(), 'Accept': '*/*', 'Connection': 'close'})
+    """Is this stream playable? Returns (ok, reason).
+
+    A HEAD request first: it is quick, and it does not hold a stream open on the
+    server, which a playable-check must not do on a one-connection plan. Only if
+    HEAD is not answered (many Xtream servers do not implement it) is a real
+    connection opened and a few bytes read.
+    """
+    headers = {'User-Agent': common.user_agent(), 'Accept': '*/*', 'Connection': 'close'}
+    try:
+        req = urllib.request.Request(url, headers=headers, method='HEAD')
+        resp = urllib.request.urlopen(req, timeout=timeout)
+        code = getattr(resp, 'status', 200) or 200
+        resp.close()
+        if code == 200:
+            return True, ''
+        if code in (403, 404):     # refused or gone: that is the answer
+            return False, 'HTTP %d' % code
+    except urllib.error.HTTPError as e:
+        if e.code in (403, 404):
+            return False, 'HTTP %d' % e.code
+    except Exception:             # URLError, timeout, ... try the real thing
+        pass
+    # No HEAD, or an answer we do not trust (405, 501, ...): open the stream and
+    # read a few bytes instead.
+    req = urllib.request.Request(url, headers=headers)
     try:
         resp = urllib.request.urlopen(req, timeout=timeout)
     except urllib.error.HTTPError as e:
@@ -264,15 +343,25 @@ def probe(url, timeout):
 
 
 def check(url, stream_id=None, name=''):
-    """Online check honouring settings."""
+    """Online check honouring settings (and what was learned recently).
+
+    A channel that played a moment ago is not probed again: on a one-connection
+    plan the probe is a second connection, which the provider may refuse, and on a
+    slow box it costs a second on every channel change.
+    """
     if not common.setting_bool('check_stream'):
         return True
+    if stream_id is not None:
+        known, ok = check_cached(stream_id)
+        if known:
+            return ok
     timeout = max(1, common.setting_int('check_timeout', 5))
     # No Kodi busy dialog here: 'busydialognocancel' can stay stuck on screen
     # and block the remote (seen when opened while TV mode is starting).
     ok, reason = probe(url, timeout)
     if stream_id is not None:
         set_offline(stream_id, not ok)
+        mark_checked(stream_id, ok)
     if not ok:
         common.log('Stream check failed for %s: %s' % (name or url.split('?')[0], reason))
     return ok
@@ -283,7 +372,10 @@ def live_url_raw(row):
     return client().live_url(row['stream_id'], 'm3u8' if hls else 'ts')
 
 
-def check_live(row):
+def check_live(row, fresh=False):
+    """Online check for a channel. fresh=True probes it even if a check is cached."""
+    if fresh:
+        check_fresh(row['stream_id'])
     return check(live_url_raw(row), row['stream_id'], row['name'])
 
 
@@ -312,7 +404,7 @@ def free_connection():
     for _ in range(30):              # wait up to 3 s for the player to close
         if not player.isPlaying() or monitor.waitForAbort(0.1):
             break
-    monitor.waitForAbort(0.3)        # let the server register the disconnect
+    monitor.waitForAbort(0.2)        # let the server register the disconnect
     return True
 
 
@@ -372,18 +464,14 @@ def start_live(row, cat_id, windowed=False, announce=True):
     t_start = time.time()
     if announce:
         announce_start(row['name'])
-    # With 'Keep the checked channel playing' the online check runs while the old
-    # stream still plays (2 x quicker than stop, check, open); otherwise the
-    # connection is freed first.
-    keep_playing = common.setting_bool('zap_resume')
-    if not keep_playing:
-        free_connection()
-    if not check_live(row):
+    # Our own stream must be closed before the check: on a one-connection plan the
+    # provider refuses (or delays) the check while it is open, which used to mark
+    # the channel offline and make zapping crawl through the rest of the group.
+    free_connection()
+    if not check_live(row, fresh=True):
         announce_end()
         offline_notice(row['name'])
         return False
-    if keep_playing:
-        free_connection()
     path, li = live_item(row)
     remember_zap(cat_id, row['stream_id'], row=row, windowed=windowed)
     common.log('Channel %s: ready to play %.1fs after the add-on was asked' % (
@@ -614,6 +702,8 @@ class LiveRecovery(xbmc.Player):
             # Remember which channel started, and when: a late callback from the
             # channel before can arrive just after the next one was tuned.
             xbmcgui.Window(10000).setProperty(PROP_LIVE_OK, '%s|%f' % (st['id'], time.time()))
+            set_offline(st['id'], False)      # it plays: any 'offline' mark was wrong
+            mark_checked(st['id'], True)
             if use_ffmpegdirect():
                 xbmcgui.Window(10000).setProperty(PROP_FFD_OK, '1')
 
@@ -679,6 +769,8 @@ class LiveRecovery(xbmc.Player):
             win.setProperty(PROP_RETRIED, st['id'])
             common.log('%s failed to start: trying once more' % row['name'])
             monitor.waitForAbort(1.0)
+            set_offline(row['stream_id'], False)     # a failed check is not proof
+            check_fresh(row['stream_id'])            # ...so check it again
             path, li = live_item(row)
             remember_zap(st.get('cat'), row['stream_id'], row=row, windowed=windowed)
             xbmc.Player().play(path, li, windowed)
@@ -686,6 +778,7 @@ class LiveRecovery(xbmc.Player):
             return
         win.clearProperty(PROP_RETRIED)
         set_offline(row['stream_id'], True)
+        mark_checked(row['stream_id'], False)
         if prev is not None and prev['stream_id'] != row['stream_id']:
             common.log('%s failed twice: back to %s' % (row['name'], prev['name']))
             common.notify('%s is not working right now - back to %s' % (row['name'], prev['name']), 4000)

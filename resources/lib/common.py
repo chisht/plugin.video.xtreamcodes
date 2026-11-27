@@ -29,6 +29,7 @@ PROP_REQUEST = ADDON_ID + '.sync_request'   # value: 'full' | 'catalog' | 'epg'
 PROP_SYNCING = ADDON_ID + '.syncing'
 PROP_UI_OPEN = ADDON_ID + '.ui_open'   # TV mode or guide on screen
 PROP_OFFLINE = ADDON_ID + '.offline'   # JSON {stream_id: until}
+PROP_CHECKED = ADDON_ID + '.checked'   # JSON {stream_id: (ok_at, bad_at)} stream checks
 PROP_ZAP = ADDON_ID + '.zap'           # JSON {cat, id} of the playing channel
 
 

@@ -127,14 +127,6 @@
           <default>true</default>
           <control type="toggle"/>
         </setting>
-        <setting id="zap_resume" type="boolean" label="30168" help="30169">
-          <level>1</level>
-          <default>true</default>
-          <dependencies>
-            <dependency type="enable" setting="switch_stop_first">true</dependency>
-          </dependencies>
-          <control type="toggle"/>
-        </setting>
         <setting id="check_stream" type="boolean" label="30080" help="30081">
           <level>0</level>
           <default>true</default>

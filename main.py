@@ -1155,6 +1155,7 @@ def clear_cache():
                                   'in the background.'):
         return
     reminders.clear_cache()
+    playback.forget_checks()
     sync.request_background('full')
     common.notify('Cache cleared - downloading again in the background', 4000)
 

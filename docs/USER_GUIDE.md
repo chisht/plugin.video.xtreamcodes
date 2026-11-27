@@ -341,12 +341,15 @@ anywhere.
   If FFmpeg Direct cannot play anything (on some boxes it does not even load),
   the add-on switches back to Kodi's player by itself and tells you.
 - *Close the current stream before opening the next*: keep this on if your plan
-  allows only one connection.
-- *Keep the checked channel playing*: on by default. The online check for the next
-  channel is made while the current one still plays, so zapping starts sooner;
-  turn it off if your provider counts the check as a second connection.
+  allows only one connection. The add-on closes the stream, checks the new channel
+  and opens it: checking while the old stream is still open makes a
+  single-connection provider refuse the check, which marks good channels offline
+  and makes the next channel change slow.
 - *Check channel is online before playing*, *Online check timeout*, *When Up/Down
-  reaches an offline channel*, *Mark offline channels*.
+  reaches an offline channel*, *Mark offline channels*. A channel that played a
+  moment ago is not checked again for 10 minutes, and a check that failed is
+  dropped as soon as the channel does play (or when the add-on retries it), so a
+  refusal while another stream was open cannot stick.
 - *Catch-up URL style*, *Catch-up: extra minutes after programme end*.
 
 **Parental**: hide adult content, PIN, show/hide groups.
