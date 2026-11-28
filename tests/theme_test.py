@@ -69,11 +69,34 @@ theme._CACHE.clear()
 
 # colours in labels follow the theme
 S['skin'] = '1'; theme.current(reload=True)
-check('favourite star uses the theme colour: %s' % common.star(),
-      common.star() == '[COLOR %s]\u2605[/COLOR] ' % theme.STBEMU.fav)
+check('the favourite marker is plain text markup: %s' % common.star(),
+      common.star() == '[B]\u2022[/B] ' and '\u2605' not in common.star())
 check('offline text uses the theme colour', common.dim('x') == '[COLOR %s]x[/COLOR]' % theme.STBEMU.dim)
 S['skin'] = '0'; theme.current(reload=True)
 check('and follows it back to default', common.dim('x') == '[COLOR %s]x[/COLOR]' % theme.DEFAULT.dim)
+
+# ...and no label uses a character the skins' fonts cannot draw. Kodi renders a
+# list label with the skin's font (Roboto in most skins, Noto in Estuary), so a
+# symbol missing from the font shows as an empty box. '\u2605' (star) is such a
+# symbol: Roboto has no star, the bullets and arrows below it does have.
+FONT_SAFE = '\u2022\u00b7\u2026\u00bb\u00ab\u00d7\u2192'   # bullet, middot, ellipsis, guillemets, times, arrow
+extra = {}
+for rel in ['main.py', 'service.py'] + ['resources/lib/' + f for f in os.listdir(os.path.join(ADDON, 'resources', 'lib'))
+                                        if f.endswith('.py')]:
+    text = open(os.path.join(ADDON, rel), encoding='utf-8').read()
+    for ch in set(text):
+        if ord(ch) > 127 and ch not in FONT_SAFE:
+            extra.setdefault(ch, []).append(rel)
+for skin in [n for n, _ in theme.SKINS]:
+    folder = os.path.join(ADDON, 'resources', 'skins', skin, '1080i')
+    for f in os.listdir(folder):
+        text = open(os.path.join(folder, f), encoding='utf-8').read()
+        for ch in set(text):
+            if ord(ch) > 127 and ch not in FONT_SAFE:
+                extra.setdefault(ch, []).append('%s/%s' % (skin, f))
+check('labels and layouts only use characters the fonts have%s'
+      % (': ' + ', '.join('U+%04X in %s' % (ord(c), v[0]) for c, v in extra.items()) if extra else ''),
+      not extra)
 
 # the windows draw the colours themselves: no colour markup in their labels
 S['skin'] = '1'; theme.current(reload=True)

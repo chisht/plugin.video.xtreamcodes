@@ -22,8 +22,8 @@ def run(q):
     xbmc.BUILTINS.clear(); xbmcgui.DIALOGS.clear(); sys.argv=['plugin://plugin.video.xtreamcodes/','1',q]; runpy.run_path(ADDON+'/main.py', run_name='__main__')
 notes=lambda: [d[2] for d in xbmcgui.DIALOGS if d[0]=='notify']
 run('?action=play_live&id=101&cat=*'); P.FILE=P.PLAYED[-1][0]
-S['switch_stop_first']='false'; P.STOPPED=False
-run('?action=zap&key=up'); print('OLD behaviour (no stop first): up ->', P.PLAYED[-1][1], '| notices:', notes(), '| 102 wrongly marked offline:', playback.is_offline('102'))
+S['switch_stop_first']='false'; P.STOPPED=False; P.FILE=P.PLAYED[-1][0]
+run('?action=zap&key=up'); print('OLD (setting off): up ->', P.PLAYED[-1][1], '| old stream closed:', P.STOPPED, '| notices:', notes(), '| wrongly marked offline:', playback.is_offline('102'))
 xbmcgui.PROPS.pop('plugin.video.xtreamcodes.offline', None); playback._OFFLINE_CACHE['t']=0
 S['switch_stop_first']='true'; P.FILE=P.PLAYED[-1][0]
 run('?action=zap&key=up'); print('NEW: up ->', P.PLAYED[-1][1], '| stopped first:', P.STOPPED, '| notices:', notes())

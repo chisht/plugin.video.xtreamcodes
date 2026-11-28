@@ -259,7 +259,8 @@ air now, By genre, By decade. Set **TMDb language** (for example `en-US` or
 ## 11. Favourites, groups and channel order
 
 - **Favourites**: add a channel from its context menu (or in TV mode or the
-  guide). Favourites get a star and their own group at the top.
+  guide). Favourites are marked with a bold dot and get their own group at the
+  top.
 - **Hide groups** you never use, such as other countries or languages: use
   **Show/hide groups...** in a group's context menu, or **Settings → Parental →
   Show/hide groups...**. This works for live, movie and series categories.
@@ -346,11 +347,14 @@ anywhere.
 - *Live TV player engine*: Kodi default, or inputstream.ffmpegdirect (experimental).
   If FFmpeg Direct cannot play anything (on some boxes it does not even load),
   the add-on switches back to Kodi's player by itself and tells you.
-- *Close the current stream before opening the next*: keep this on if your plan
-  allows only one connection. The add-on closes the stream, checks the new channel
-  and opens it: checking while the old stream is still open makes a
-  single-connection provider refuse the check, which marks good channels offline
-  and makes the next channel change slow.
+- *Close the current stream before opening the next*: the add-on closes the stream
+  it has playing before it checks and opens the next one. This is what a plan with
+  only one connection needs, and it is also what makes a channel change look right:
+  Kodi keeps a stream playing until the new one has opened, so a stream left
+  running goes on behind the channel banner for a few seconds. Turning this setting
+  off only skips the two short waits after closing (for the player to stop and the
+  provider to notice) - useful if your provider is quick and you want the very
+  shortest switch.
 - *Check channel is online before playing*, *Online check timeout*, *When Up/Down
   reaches an offline channel*, *Mark offline channels*. A channel that played a
   moment ago is not checked again for 10 minutes, and a check that failed is
@@ -389,6 +393,10 @@ Each skin is a palette plus a folder of window layouts in
 `resources/skins/<name>/`, so the two are always in step: switching the skin
 changes both the colours the add-on draws in Python and the layouts it loads.
 
+In TV mode, Left from the channel group list moves to the group list's scroll
+bar (both skins), where Up/Down scroll the list; Right leaves it again. The
+scroll bar also follows the list by itself when you scroll with Up/Down.
+
 **Background updates**: update channel lists in the background and how often,
 download the full EPG, how many past days to keep (for catch-up), EPG time
 offset, show progress and notifications, clear cached data, update now.
@@ -398,7 +406,8 @@ offset, show progress and notifications, clear cached data, update now.
 | Problem | Try this |
 |---|---|
 | "Set up your account" won't go away / login fails | Check the server URL includes `http://` and the port, with nothing after it. Check **Account and status**. |
-| A new channel won't start after switching (HTTP 403) | Your plan allows a limited number of connections. Keep **Close the current stream before opening the next** on, and check **Account and status** for active connections. |
+| A new channel won't start after switching (HTTP 403) | Your plan allows a limited number of connections. The add-on closes the stream it has playing before opening the next one, so check **Account and status** for active connections and make sure nothing else (another TV, a phone) is watching. |
+| The previous channel plays on for a few seconds after a channel change | Update to 1.14.6 or later: the old stream is now stopped before the new one opens. Kodi keeps a stream running until the replacement has opened, so a stream left playing went on behind the channel banner. Keep **Close the current stream before opening the next** on if your plan has a connection limit. |
 | Channel switching feels slow | In Kodi, set **Settings → Player → Videos → Adjust display refresh rate** to **Off**. Use MPEG-TS. Try a lower **wait before tuning** value. |
 | Every channel shows as offline | Turn off **Check channel is online before playing**. Some single-connection providers refuse the check. |
 | Guide times are wrong | Set **EPG time offset**. |

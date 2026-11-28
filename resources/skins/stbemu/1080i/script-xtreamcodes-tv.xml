@@ -33,6 +33,7 @@
     <!-- channel groups, narrow strip on the far left -->
     <control type="list" id="100">
       <left>0</left><top>100</top><width>330</width><height>980</height>
+      <onleft>101</onleft>
       <onright>200</onright>
       <pagecontrol>101</pagecontrol>
       <scrolltime>120</scrolltime>
@@ -65,8 +66,11 @@
         </control>
       </focusedlayout>
     </control>
+    <!-- the group list's scrollbar sits between the list and the channel column.
+         Left from the list reaches it (see <onleft>101</onleft> above); it is 16 px
+         wide so the orange marker is easy to see. -->
     <control type="scrollbar" id="101">
-      <left>336</left><top>100</top><width>10</width><height>980</height>
+      <left>334</left><top>100</top><width>16</width><height>980</height>
       <texturesliderbackground colordiffuse="1AFFFFFF">white.png</texturesliderbackground>
       <texturesliderbar colordiffuse="44FFFFFF">white.png</texturesliderbar>
       <texturesliderbarfocus colordiffuse="FFE08A1E">white.png</texturesliderbarfocus>

@@ -204,10 +204,11 @@ def fmt_votes(n):
 
 
 def star(t):
-    """'* 7.8' in gold, or '' if nobody rated it yet."""
+    """'7.8' in gold, or '' if nobody rated it yet. The rating goes in front of
+    the title, so a line with no rating stays as it was."""
     if not t or not t.get('rating'):
         return ''
-    return '[COLOR FFFFC107]★ %.1f[/COLOR]' % t['rating']
+    return '[COLOR FFFFC107]%.1f/10[/COLOR]' % t['rating']
 
 
 def summary_lines(kind, tid):

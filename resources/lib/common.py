@@ -152,13 +152,13 @@ def _write_json(path, data):
                 pass
 
 
-STAR = '[COLOR FFFFC107]\u2605[/COLOR] '   # marks a favourite channel in lists
-
-
+# Marks a favourite channel in a list. Only text markup: Kodi draws list labels
+# with the skin's font, and the fonts in use (Roboto in most skins, Estuary's
+# Noto) have no star glyph, so a '\u2605' here shows as a blank box. Bold reads
+# in every skin and every font.
 def star():
-    """Favourite marker, in the theme's colour."""
-    from . import theme
-    return '[COLOR %s]\u2605[/COLOR] ' % theme.fav()
+    """Favourite marker for a list label."""
+    return '[B]\u2022[/B] '
 
 
 def dim(text, t=None):
