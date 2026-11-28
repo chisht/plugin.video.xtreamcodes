@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.xtreamcodes"
        name="Xtream Codes IPTV"
-       version="1.14.3"
+       version="1.14.4"
        provider-name="custom">
   <requires>
     <import addon="xbmc.python" version="3.0.1"/>
