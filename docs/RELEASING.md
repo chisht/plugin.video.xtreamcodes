@@ -25,8 +25,7 @@ Kodi picks the new version up on its next repository check (or
 *Add-ons → … → Check for updates*). Old zips stay on the branch, so a device
 that is behind can still install an older version.
 
-Locally the same thing is `./release.sh` (see `publish_repo.sh` for the old
-name); it needs push access to `kodi-repo`, which the protection takes away
+Locally the same thing is `./release.sh`; it needs push access to `kodi-repo`, which the protection takes away
 from humans on purpose. `./release.sh --print` only builds and lists the files,
 `./release.sh --dry-run` shows the commit that would be pushed.
 

@@ -1,4 +1,4 @@
-# Handoff (state at version 1.14.6)
+# Handoff (state at version 1.14.8)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -30,7 +30,7 @@
   kodi-repo* (`.github/workflows/release.yml`), which runs
   `release/executor.sh` on the default branch's commit; it needs `GITHUB_TOKEN`
   with the ruleset bypass, or the `RELEASE_TOKEN` secret - see `docs/RELEASING.md`.
-  Local shorthands: `./release.sh`, `./publish_repo.sh` (old name).
+  Local shorthand: `./release.sh`.
 
 ## Tests
 `tests/` has stub Kodi modules (`tests/stubs`), fake Xtream/TMDb/Trakt servers and
@@ -45,6 +45,17 @@ Add new tests as `tests/<name>_test.py` printing `PASS`/`FAIL` lines and calling
 `sys.exit(1 if fails else 0)`; `run_all.sh` picks them up by itself.
 
 ## Latest work
+1.14.8: with "Close the current stream before opening the next" **off**,
+`free_connection()` now leaves the old stream playing (it returns False at once), so
+Kodi replaces it and a channel change from fullscreen never leaves fullscreen.
+This replaces the 1.14.6 rule "always close our stream" (item (c) below), which made
+the old stream stop but sent Kodi back to the TV/grid window.
+1.14.7: with the setting **on**, closing the old stream makes Kodi leave fullscreen
+video for the window underneath. `overlay.fullscreen_cover()` (used by
+`zapper._zap_tune` and `playback.start_live`) puts a black dialog
+(`script-xtreamcodes-cover.xml`, zorder below the banner) over it until
+`Window.IsActive(fullscreenvideo)` is true again (gives up after 15 s, or 3 s if
+nothing is playing). Unverified on a device beyond the owner's report.
 1.14.6: three reports after 1.14.5.
 (a) "In TV mode, scroll bars can't be used. Still works in blue skin." The group
 list's scroll bar (`id=101`) was unreachable in the STBEmu layout. Kodi's
@@ -75,10 +86,8 @@ banner's duration), picture on the new channel at 17:57:01. Cause: `player.play(
 only posts `CDVDMsgOpenFile` to the running player - Kodi does not close the old
 stream until the new one has opened - and `free_connection()` returned early when
 `switch_stop_first` was off (the log has `Not closing the current stream first
-(setting is off)` on every zap). Fix: `free_connection()` now always closes our own
-live stream (and never touches a stream from another add-on); the setting only
-decides whether it then waits for the player to close and the provider to register
-the disconnect. Tests: `tests/zap_improve_test.py`, `tests/connlimit_test.py`.
+(setting is off)` on every zap). 1.14.6 fix: `free_connection()` always closed our own
+live stream; **superseded by 1.14.8** (setting off = do not close). Tests: `tests/zap_improve_test.py`, `tests/connlimit_test.py`.
 1.14.5: two reports after 1.14.3.
 (a) Back out of the grid guide left the add-on and landed on Kodi's home screen.
 Cause: `xbmcgui.WindowXML.close()` sends `TMSG_GUI_PREVIOUS_WINDOW` every time it
@@ -249,8 +258,7 @@ Kodi closes the old stream serially, so it cannot fully match STBEmu.
 Advice given: Settings > Player > Videos > Adjust display refresh rate = Off, MPEG-TS.
 
 ## Open items / ideas
-- Channel change timing on the real box: 1.14.2 log (`uploads/kodi.log`, Kodi 22
-  alpha, CoreELEC, skin stbemu) medians over 10 channel changes: key -> OpenFile
+- Channel change timing on the real box: a 1.14.2 log (Kodi 22 alpha, CoreELEC, skin stbemu) medians over 10 channel changes: key -> OpenFile
   0.15 s (max 1.95), OpenFile -> InputStream 1.91 s (max 4.98 = Kodi closing the
   old stream), connect 0.21, probe 0.37, decoder -> picture 0.32; key -> picture
   median 3.31 s, max 5.77. No errors from the add-on. The "add-on ready 23.1 s" on
@@ -264,5 +272,6 @@ Advice given: Settings > Player > Videos > Adjust display refresh rate = Off, MP
 - Check real-device timing logs for the new zap path; tune `zap_debounce`.
 - Movies/series episodes do not get the "Starting..." note.
 - Own Trakt app keys vs. user-supplied keys; Stalker portal support (needs portal format).
-- Add a licence (owner to choose) before making the repo public; the Kodi
-  repository's update URLs need the repo to be public.
+- Add a LICENSE file (addon.xml declares MIT; the owner has to confirm and supply the
+  copyright line) before making the repo public; the Kodi repository's update URLs
+  need the repo to be public.
