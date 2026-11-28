@@ -429,20 +429,28 @@ def stop_playback(reason=''):
 
 
 def free_connection():
-    """Stop our stream before opening another one.
+    """Stop our stream before opening another one. Returns True if it was stopped.
 
-    Plans with a connection limit refuse a new stream (HTTP 403) while the old one
-    is still open, and the online check would wrongly report the channel offline.
+    The old stream is always closed, whatever the setting says: Kodi does not
+    replace a stream until the new one has opened, so a live stream left running
+    keeps playing for as long as the banner is up (four seconds) before the new
+    channel appears. Closing it first also frees the connection for the online
+    check, which a plan with a connection limit would otherwise refuse (HTTP 403),
+    marking good channels offline. The setting only decides whether the check waits
+    for the player to close and the server to register the disconnect -- the two
+    extra waits, which some providers need.
     """
-    if not common.setting_bool('switch_stop_first'):
-        common.log('Not closing the current stream first (setting is off)')
-        return False
     player = xbmc.Player()
     try:
         if not (player.isPlaying() and player.getPlayingFile().startswith(client().base + '/')):
             return False
     except RuntimeError:
         return False
+    if not common.setting_bool('switch_stop_first'):
+        # Closed, but without waiting for the player and the provider.
+        common.log('Closing the current stream (not waiting for the player to close)')
+        player.stop()
+        return True
     common.log('Closing the current stream before opening the next one')
     player.stop()
     monitor = xbmc.Monitor()

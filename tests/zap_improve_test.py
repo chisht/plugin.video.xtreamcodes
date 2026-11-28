@@ -74,7 +74,23 @@ check('the stream is stopped before the check (one-connection plans: %s)' % (ord
 playback.start_live = real_start_live
 playback.check_live, playback.free_connection = real_check, real_free
 
+# our own stream is closed even with the setting off: Kodi keeps the old stream
+# running until the new one opens, so it would play on behind the banner
+P.STOPPED = False
+P.FILE = playback.live_item(rows[0])[0]
+S['switch_stop_first'] = 'false'
+check('the old stream is closed with the setting off too', playback.free_connection() and P.STOPPED)
+S['switch_stop_first'] = 'true'
+P.STOPPED = False
+P.FILE = playback.live_item(rows[0])[0]
+check('the setting on closes it and waits for the player', playback.free_connection() and P.STOPPED)
+P.STOPPED = False
+P.FILE = 'http://example.com/other/addon/movie.mkv'      # not ours: left alone
+check('a stream from another add-on is never stopped', playback.free_connection() is False and not P.STOPPED)
+P.FILE = ''
+
 # a channel that just played is not probed again; a forced check still is
+P.FILE = ''                                      # nothing playing: no channel context
 playback.forget_checks()
 probes = []
 real_probe = playback.probe
@@ -98,6 +114,8 @@ playback.forget_checks()
 check('forget_checks() clears the marks', not playback.check_cached(rows[0]['stream_id'])[0])
 
 # a channel that really started playing drops any wrong 'offline' mark
+P.PLAYED.clear()                                 # and no previous zap state is left behind
+P.FILE = playback.live_item(rows[0])[0]          # this channel is playing now
 playback.set_offline(rows[0]['stream_id'], True)
 check('channel marked offline', playback.is_offline(rows[0]['stream_id']))
 st = {'id': rows[0]['stream_id'], 'cat': '1', 't': time.time()}

@@ -1,4 +1,4 @@
-# Handoff (state at version 1.14.3)
+# Handoff (state at version 1.14.6)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -45,6 +45,40 @@ Add new tests as `tests/<name>_test.py` printing `PASS`/`FAIL` lines and calling
 `sys.exit(1 if fails else 0)`; `run_all.sh` picks them up by itself.
 
 ## Latest work
+1.14.6: three reports after 1.14.5.
+(a) "In TV mode, scroll bars can't be used. Still works in blue skin." The group
+list's scroll bar (`id=101`) was unreachable in the STBEmu layout. Kodi's
+`CGUIWindow::OnMove` only moves to a control named by the current control's
+`on<direction>` action (`GUIControl::GetAction`), and in the STBEmu layout the
+list `100` had no `onleft` while the scroll bar sat to its *right* - so nothing
+ever moved to `101` and it could never take focus (no mouse on the box). The
+default layout has always named it (`100.onleft=101`). Fix: `onleft>101` on the
+STBEmu list, and the scroll bar's own `onright` (which pointed at `200`, making a
+one-way trap) dropped, `onleft>100` kept; widened 10 -> 16 px and moved to
+left=334 so the orange marker is easy to see.
+(b) "For the channels marked as favourite. Isn't there supposed to be a star
+symbol in channel listing". There was one (`common.star()`), but the character
+was the problem, not the code: Kodi draws a list label with the *skin's* font, and
+`skin.confluence` (the reporter's skin) uses Roboto, which has no U+2605 (star) -
+it rendered as an empty box. `UnicodeSymbols.ttf`, Kodi's fallback for this, only
+arrived in Kodi 22 nightlies, not the ALPHA3 build in the log. Fix: the favourite
+marker is text markup the font definitely has - `[B]•[/B] ` in `common.star()`,
+`tvwindow._star()`, `guide._star()` (the `fav` theme colour and
+`theme.fav()` are gone with it, `tmdb.star()` no longer puts a star before a
+rating). Test: `tests/theme_test.py` now fails on any character outside a
+font-safe set in the labels the code builds and in the layouts.
+(c) "When switching channel it displays starting and channel name then plays the
+channel. Sometime after that starting it keeps playing the last channel for a few
+more seconds." Confirmed in the pasted log (17:56:55): the banner came up, the new
+stream opened 0.4 s later, the *old* stream kept decoding until 59.823 (4.0 s, the
+banner's duration), picture on the new channel at 17:57:01. Cause: `player.play()`
+only posts `CDVDMsgOpenFile` to the running player - Kodi does not close the old
+stream until the new one has opened - and `free_connection()` returned early when
+`switch_stop_first` was off (the log has `Not closing the current stream first
+(setting is off)` on every zap). Fix: `free_connection()` now always closes our own
+live stream (and never touches a stream from another add-on); the setting only
+decides whether it then waits for the player to close and the provider to register
+the disconnect. Tests: `tests/zap_improve_test.py`, `tests/connlimit_test.py`.
 1.14.5: two reports after 1.14.3.
 (a) Back out of the grid guide left the add-on and landed on Kodi's home screen.
 Cause: `xbmcgui.WindowXML.close()` sends `TMSG_GUI_PREVIOUS_WINDOW` every time it

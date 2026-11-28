@@ -34,8 +34,8 @@ VIEW = 800
 UP, DOWN = 'up', 'down'
 
 
-def _star(t=None):
-    return '[COLOR %s]\u2605[/COLOR] ' % (t or theme.current()).fav
+def _star():
+    return '[B]\u2022[/B] '
 
 
 def _now_label(progs, now):
@@ -256,7 +256,7 @@ class TVWindow(xbmcgui.WindowXML):
         """'12  Channel name', starred if it is a favourite."""
         row = self.rows[idx]
         label = '%s  %s' % (row['num'] or (idx + 1), row['name'])
-        return _star(self._theme) + label if row['stream_id'] in self._favs else label
+        return _star() + label if row['stream_id'] in self._favs else label
 
     def _label(self, li, idx, offline, now_title=None):
         """Normal or greyed-out (offline) label for row `idx`."""

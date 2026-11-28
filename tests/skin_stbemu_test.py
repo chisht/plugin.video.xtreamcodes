@@ -84,8 +84,8 @@ favs = playback.common.load_favs()
 playback.common.toggle_fav('102')
 w.load_channels('1', select_id='102')
 star_lab = c.items[1].label
-check('favourite star in the theme colour (%s)' % star_lab,
-      star_lab.startswith('[COLOR %s]\u2605[/COLOR]' % t.fav) and colours(star_lab) == [t.fav])
+check('favourite channel is marked in bold (%s)' % star_lab,
+      star_lab.startswith('[B]\u2022[/B] ') and '\u2605' not in star_lab)
 playback.common.save_json('favourites.json', favs)   # put it back
 
 # playing a channel from TV mode

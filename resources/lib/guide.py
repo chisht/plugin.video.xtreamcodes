@@ -33,8 +33,8 @@ TICK = 10          # seconds between "now" line moves
 MIN_REDRAW = 25    # do not rebuild the grid twice within this many seconds
 
 
-def _star(t=None):
-    return '[COLOR %s]\u2605[/COLOR] ' % (t or theme.current()).fav
+def _star():
+    return '[B]\u2022[/B] '
 
 
 def now_wrapped(start, now=None):
@@ -161,7 +161,7 @@ class GuideWindow(xbmcgui.WindowXML):
             row = self.rows[ci]
             logo.setImage(row['icon'] or '')
             name = '%s  %s' % (row['num'] or ci + 1, row['name'])
-            label.setLabel(_star(t) + name if row['stream_id'] in favs else name)
+            label.setLabel(_star() + name if row['stream_id'] in favs else name)
             progs = self.guide.listings(row['epg_id'], self.start, end) if self.guide.ok else []
             if not progs:
                 progs = [{'start': self.start, 'stop': end, 'title': 'No programme information',
