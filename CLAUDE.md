@@ -11,7 +11,9 @@ Rules (set by the owner):
 - Logs the user pastes may contain the provider login: scrub before quoting.
 - Target hardware: CoreELEC on Amlogic arm64, Kodi 22 alpha, Python 3.14,
   Confluence skin, CEC remote (arrives as keyboard events).
-- Bump `version` in `addon.xml` for each release; run `./build.sh` to package,
-  `./publish_repo.sh` to push it to the Kodi repository (`kodi-repo` branch).
+- Bump `version` in `addon.xml` for each release; run `./build.sh` to package.
+  The Kodi repository (`kodi-repo` branch) is protected: release from the
+  *Release to kodi-repo* workflow (or `./release.sh` with bypass rights) and see
+  `docs/RELEASING.md`.
 - New user-facing strings go in `resources/language/resource.language.en_gb/strings.po`
   (highest id in use: 30157) and settings in `resources/settings.xml`.
