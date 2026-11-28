@@ -117,7 +117,9 @@ mode → Stop playback when leaving the add-on**. Leaving means Back out of TV
 mode, out of the grid guide, or out of any list (Live TV, catch-up, search, a
 reminder pop-up) while one of this add-on's channels is playing. Kodi otherwise
 keeps a stream started from a list playing in the background — with this on it
-stops, so your connection is free for another device.
+stops, so your connection is free for another device. A channel that plays with
+no picture on screen (started from a list, then Back out of fullscreen) is
+stopped too, instead of playing on with only sound behind the menu.
 
 The colours and layout of TV mode (and of the grid guide and the channel banner)
 come from **Settings → Display → Skin** — see
@@ -182,7 +184,7 @@ watching.
 | OK on an earlier programme | Watch it (catch-up channels, within the archive). |
 | OK on a later programme | Set or remove a reminder. |
 | Menu / long-press OK | Watch live, watch from the beginning, set a reminder, jump to now, add to favourites, watch fullscreen. |
-| Back | Close the guide. |
+| Back | Close the guide and go back to what was underneath (TV mode, or the list you opened it from). |
 
 If all guide times are off by an hour or more, set **Settings → Background
 updates → EPG time offset**.

@@ -45,6 +45,30 @@ Add new tests as `tests/<name>_test.py` printing `PASS`/`FAIL` lines and calling
 `sys.exit(1 if fails else 0)`; `run_all.sh` picks them up by itself.
 
 ## Latest work
+1.14.5: two reports after 1.14.3.
+(a) Back out of the grid guide left the add-on and landed on Kodi's home screen.
+Cause: `xbmcgui.WindowXML.close()` sends `TMSG_GUI_PREVIOUS_WINDOW` every time it
+is called, and Back reaches `close()` twice (the `onAction` handler, then the
+`finally` in `open_guide()`/`open_tv()` after `doModal()` returns). The second
+call stepped back a *second* window - the guide, then the list underneath - so
+Kodi fell through to `Home.xml`. Both windows' `_ui_done` guard now returns
+without calling `xbmcgui.WindowXML.close()` again: one Back, one window.
+(b) A channel started from Search and left (Back out of fullscreen) kept playing
+with only sound behind the menu. Cause: `Player.isPlayingVideo()` is true for a
+background stream too, so `left_addon()` believed the picture was up and
+`open_guide()`'s `keep_playing` believed a picture would be there on return.
+New `playback.picture_up()` asks Kodi for the real front window
+(`Window.IsActive(fullscreenvideo)`); `left_addon()` uses it instead of
+`isPlayingVideo()`, and `open_guide()` sets `keep_playing = picture_up()` (a guide
+over TV mode needs no flag - TV mode is still open, so `UI_OPEN` stays > 0). The
+`Container.FolderPath` guard in `left_addon()` was dropped: while our list is on
+screen our stream is not playing, so the folder path was never the deciding
+factor - and it wrongly spared a channel playing behind one of our own lists.
+Test: `tests/stop_on_exit_test.py` (guide over a pictureless stream, double
+close, watchdog with `Player.isPlayingVideo()` still true).
+
+1.14.4: release through the Actions workflow; no functional change.
+
 1.14.3: stop playback when leaving the add-on, from every window. Before, only
 `TVWindow.close()` stopped the stream; the grid guide cleared `PROP_UI_OPEN`
 without stopping, and a channel started from a list (Live TV, search, catch-up,

@@ -399,6 +399,21 @@ def our_live_playing():
     return path if path.startswith(base + '/') else ''
 
 
+def picture_up():
+    """True when the video is really on screen: Kodi's fullscreen video window.
+
+    Player.isPlayingVideo() is true for a stream that plays in the background as
+    well - a channel started from a list, or the mini player of a window that has
+    closed - so it cannot answer "is the viewer watching?". Kodi's fullscreen
+    video window is the only place that shows a picture on its own; TV mode shows
+    it in its own window, which `window_open()` covers.
+    """
+    try:
+        return bool(xbmc.getCondVisibility('Window.IsActive(fullscreenvideo)'))
+    except Exception:
+        return False
+
+
 def stop_playback(reason=''):
     """Stop our stream (used when the viewer leaves the add-on's windows).
 
@@ -487,19 +502,16 @@ def left_addon():
     """The service's watchdog: True when a channel of ours plays on with nobody
     watching (the viewer left the add-on by an exit this module cannot see).
 
-    A channel started from a list (Live TV, search, catch-up, a reminder) is
-    resolved by Kodi, and then nothing of the add-on is on screen any more: if
-    the viewer pressed Back out of the add-on, only sound is left.
+    A channel started from a list (Live TV, search, catch-up, a reminder) plays
+    with the picture only while Kodi's fullscreen video window is up; pressing
+    Back leaves the sound playing behind a list (or Kodi's home screen), which is
+    what this catches. Our own windows (TV mode, the grid guide) show the stream
+    themselves, so a window of ours on screen is left alone.
     """
     if not common.setting_bool('tv_stop_on_exit') or not our_live_playing():
         return False
-    if xbmc.Player().isPlayingVideo() or window_open():
+    if picture_up() or window_open():
         return False                  # the picture (or TV mode) is on screen
-    try:
-        if xbmc.getInfoLabel('Container.FolderPath').startswith('plugin://%s' % common.ADDON_ID):
-            return False              # one of our lists is on screen
-    except Exception:
-        pass
     win = xbmcgui.Window(10000)
     st = zap_state() or {}
     try:
