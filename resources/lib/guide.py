@@ -37,9 +37,16 @@ def _star():
     return '[B]\u2022[/B] '
 
 
-def now_wrapped(start, now=None):
-    """True when 'now' has moved past the right edge of the time window."""
-    return (now or time.time()) >= start + SPAN
+def now_wrapped(start, now=None, last=None):
+    """True when 'now' has just moved past the right edge of the time window.
+
+    `last` is the previous check: with it only the crossing itself counts, so a
+    window the viewer scrolled back into the past (whose right edge 'now' passed
+    long ago) is left where it is instead of jumping back to the present."""
+    now = now or time.time()
+    if last is not None and last >= start + SPAN:
+        return False
+    return now >= start + SPAN
 
 
 def _media(skin):
@@ -119,9 +126,11 @@ class GuideWindow(xbmcgui.WindowXML):
         """Move the "now" line along; only rebuild the whole grid now and then
         (a rebuild makes hundreds of button controls)."""
         monitor = xbmc.Monitor()
+        last = time.time()
         while not self._stop.wait(TICK) and not monitor.abortRequested():
             try:
-                if now_wrapped(self.start):
+                tick, last = last, time.time()
+                if now_wrapped(self.start, last, tick):
                     self.start = int(time.time() // SLOT * SLOT)
                     self.draw()
                 else:

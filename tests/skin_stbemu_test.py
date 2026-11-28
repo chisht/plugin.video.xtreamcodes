@@ -122,6 +122,9 @@ check('focused block text is readable', gwin.buttons[0].kw['focusedColor'] == t.
 check('guide ticker only redraws when now leaves the window',
       not guide.now_wrapped(gwin.start, gwin.start + 60)
       and guide.now_wrapped(gwin.start, gwin.start + guide.SPAN))
+check('a window scrolled into the past stays there',
+      guide.now_wrapped(gwin.start, gwin.start + guide.SPAN + 1, gwin.start + guide.SPAN - 1)
+      and not guide.now_wrapped(gwin.start, gwin.start + guide.SPAN + 20, gwin.start + guide.SPAN + 10))
 check('grid redraws are throttled', guide.MIN_REDRAW >= 10)
 gwin.close()
 
