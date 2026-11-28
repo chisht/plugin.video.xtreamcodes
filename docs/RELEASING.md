@@ -30,6 +30,20 @@ name); it needs push access to `kodi-repo`, which the protection takes away
 from humans on purpose. `./release.sh --print` only builds and lists the files,
 `./release.sh --dry-run` shows the commit that would be pushed.
 
+## Creating the protection
+
+`release/ruleset.json` is the ruleset that protects the branch; with the `gh` CLI
+logged in as someone with admin rights:
+
+```sh
+sh release/ruleset.sh          # create or update the ruleset (safe to re-run)
+sh release/ruleset.sh --show   # list the repository's rulesets
+```
+
+By hand: Settings → Rules → New branch ruleset, target branch
+`refs/heads/kodi-repo`, enable *Restrict updates*, *Restrict deletions* and
+*Block force pushes*, and add a bypass (see below).
+
 ## The protection and the workflow's credentials
 
 The ruleset (`kodi-repo`, admins can bypass) makes the branch:
