@@ -510,8 +510,7 @@ class TVWindow(xbmcgui.WindowXML):
     def close(self):
         self._stop.set()
         if getattr(self, '_ui_done', False):   # onAction Back, then doModal returns
-            xbmcgui.WindowXML.close(self)
-            return
+            return      # closing again would step a second window back
         self._ui_done = True
         playback.ui_closed()
         if self._digit_timer:

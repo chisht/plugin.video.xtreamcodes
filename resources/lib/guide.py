@@ -14,6 +14,7 @@ import xbmcgui
 from . import common, playback, reminders, theme
 from .catalog import Catalog, live_rows
 from .epg import EPG
+from .playback import picture_up
 
 ROWS = 8
 X0, WIDTH, Y0, ROW_H, GAP = 360, 1530, 180, 88, 4
@@ -427,7 +428,10 @@ class GuideWindow(xbmcgui.WindowXML):
     def close(self):
         self._stop.set()
         if getattr(self, '_ui_done', False):
-            xbmcgui.WindowXML.close(self)
+            # Back already closed the window: xbmcgui.WindowXML.close() asks Kodi
+            # for the previous window each time it is called, so calling it twice
+            # would step two windows back (out of the guide and out of whatever
+            # the guide was opened over, straight to Kodi's home screen).
             return
         self._ui_done = True
         # Closing the guide returns to whatever was underneath (Kodi's fullscreen
@@ -444,8 +448,11 @@ def open_guide(cat_id='*', select_id=None, before_show=None, win=None):
     # Opened while a channel plays fullscreen: closing the guide returns to that
     # picture, so the channel keeps playing. Opened from the add-on's own menu
     # (or anywhere else) it is the last screen of the add-on: stop on exit.
-    st = playback.zap_state() or {}
-    win.keep_playing = bool(xbmc.Player().isPlayingVideo() and not st.get('w'))
+    # The fullscreen video window decides, not Player.isPlayingVideo(): that is
+    # true for a stream playing behind a list as well, and closing the guide
+    # would then leave a channel playing with nobody watching. A guide over TV
+    # mode needs no flag: TV mode is still open, so nothing is stopped.
+    win.keep_playing = picture_up()
     below = playback.UI['win']
     playback.UI['win'] = win
     try:
