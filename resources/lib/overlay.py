@@ -5,6 +5,7 @@ Every remote key press runs the add-on in a separate process, so overlays are
 coordinated through a sequence number in a Home-window property: a newer key
 press makes the older overlay close itself.
 """
+import contextlib
 import json
 import time
 import uuid
@@ -41,6 +42,61 @@ class _Overlay(xbmcgui.WindowXMLDialog):
 
 def _new_overlay():
     return _Overlay(theme.BANNER_XML, common.ADDON_PATH, theme.skin_dir(), '1080i')
+
+
+class _Cover(xbmcgui.WindowXMLDialog):
+    """Black full-screen dialog; ignores keys (the banner above it handles them)."""
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def onAction(self, action):
+        pass
+
+
+COVER_MAX = 15.0
+
+
+@contextlib.contextmanager
+def fullscreen_cover():
+    """Hide the window Kodi falls back to while a channel changes from fullscreen.
+
+    Closing the old stream makes Kodi leave fullscreen video (for TV or grid mode,
+    where the channel list would show) until the next stream is on screen. When a
+    channel is changed from fullscreen, a black cover (below the banner) stays up
+    until the picture is back, so the viewer never leaves fullscreen.
+    """
+    win = None
+    try:
+        if xbmc.getCondVisibility('Window.IsActive(fullscreenvideo)'):
+            win = _Cover(theme.COVER_XML, common.ADDON_PATH, theme.skin_dir(), '1080i')
+            win.show()
+    except Exception:
+        win = None
+    try:
+        yield
+    finally:
+        if win is not None:
+            _drop_cover(win)
+
+
+def _drop_cover(win):
+    monitor = xbmc.Monitor()
+    player = xbmc.Player()
+    start = time.time()
+    try:
+        while time.time() - start < COVER_MAX:
+            if xbmc.getCondVisibility('Window.IsActive(fullscreenvideo)'):
+                break
+            if time.time() - start > 3 and not player.isPlaying():
+                break               # nothing is opening: do not hide the window for nothing
+            if monitor.waitForAbort(0.1):
+                break
+    except Exception:
+        pass
+    try:
+        win.close()
+    except Exception:
+        pass
 
 
 def _claim():

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Opaque black cover shown while a channel is changed from Kodi's fullscreen
+     video: closing the old stream makes Kodi leave fullscreen, and the cover
+     hides the window behind it until the next channel is on screen. The banner
+     (zorder 1) is drawn above it. -->
+<window type="dialog">
+  <zorder>0</zorder>
+  <controls>
+    <control type="image">
+      <left>0</left><top>0</top><width>1920</width><height>1080</height>
+      <texture colordiffuse="FF000000">white.png</texture>
+    </control>
+  </controls>
+</window>
