@@ -436,8 +436,8 @@ class GuideWindow(xbmcgui.WindowXML):
         self._ui_done = True
         # Closing the guide returns to whatever was underneath (Kodi's fullscreen
         # video or this add-on's TV mode), so the channel keeps playing.
+        xbmcgui.WindowXML.close(self)   # first: stopping the stream can take seconds
         playback.ui_closed(keep_playing=getattr(self, 'keep_playing', False))
-        xbmcgui.WindowXML.close(self)
 
 
 def open_guide(cat_id='*', select_id=None, before_show=None, win=None):
