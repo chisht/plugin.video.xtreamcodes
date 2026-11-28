@@ -1,7 +1,6 @@
 LOGINFO, LOGWARNING, LOGERROR, LOGDEBUG = 1, 2, 3, 0
 LOG = []
 def log(msg, level=1): LOG.append(msg)
-def getCondVisibility(c): return False
 WINDOWS = {'System.CurrentWindow': 'FullScreenVideo', 'Container.FolderPath': ''}
 def getInfoLabel(l):
     return WINDOWS.get(l, '')
@@ -24,3 +23,13 @@ Player.stop = _stop
 Player.TIME = 0.0; Player.TOTAL = 0.0
 Player.getTime = lambda self: Player.TIME
 Player.getTotalTime = lambda self: Player.TOTAL
+# Window.IsActive(fullscreenvideo): None = follow Player.isPlayingVideo() (what most
+# tests mean by "the picture is up"); a test can set .on to model a stream that plays
+# with no picture on screen (started from a list, then Back out of fullscreen).
+class _Fullscreen:
+    on = None
+FULLSCREEN = _Fullscreen()
+def getCondVisibility(c):
+    if 'fullscreenvideo' in c:
+        return Player().isPlayingVideo() if FULLSCREEN.on is None else bool(FULLSCREEN.on)
+    return False

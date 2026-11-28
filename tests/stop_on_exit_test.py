@@ -96,10 +96,32 @@ check('Back out of the guide (opened from the add-on) stops the channel',
       P.FILE == '' and P.STOPPED)
 check('guide window bookkeeping back to zero', playback.UI_OPEN[0] == 0)
 
+# Back reaches close() twice (onAction, then doModal returning): the second one
+# must not ask Kodi for the previous window again, or the guide takes the window
+# it was opened over with it - out of the add-on, to Kodi's home screen.
+closes = []
+real_wm_close = xbmcgui.WindowXML.close
+xbmcgui.WindowXML.close = lambda self: closes.append(self)
+try:
+    g = guide.GuideWindow(guide.theme.GUIDE_XML, ADDON, guide.theme.skin_dir(), '1080i')
+    g.setup('*', None)
+    g.onInit()
+    g.onAction(xbmcgui.Action(92))       # Back
+    g.close()                            # doModal's finally, as in open_guide()
+    check('the guide closes the window once, not twice (%d)' % len(closes), len(closes) == 1)
+    closes[:] = []
+    w = tvwindow.TVWindow(tvwindow.theme.TV_XML, ADDON, tvwindow.theme.skin_dir(), '1080i')
+    w.onInit()
+    w.onAction(xbmcgui.Action(92))
+    w.close()
+    check('TV mode closes the window once, not twice (%d)' % len(closes), len(closes) == 1)
+finally:
+    xbmcgui.WindowXML.close = real_wm_close
+
 # opened over a playing channel: Back returns to the picture, so it keeps playing
 def guide_over_video():
     P.FILE = playing(rows[2])
-    P.isPlayingVideo = lambda self: True
+    xbmc.FULLSCREEN.on = True            # Kodi's fullscreen video window is up
     opened = {}
     real_modal = xbmcgui.WindowXML.doModal
 
@@ -120,6 +142,31 @@ P.STOPPED = False
 opened = guide_over_video()
 check('guide opened over the picture keeps it playing (%s)' % opened, opened.get('keep') is True)
 check('the channel is still on after closing that guide', bool(P.FILE) and not P.STOPPED)
+xbmc.FULLSCREEN.on = None
+
+# opened while a channel plays with no picture (started from a list, the viewer
+# is on our menu): closing the guide must not leave the channel playing
+P.FILE = playing(rows[3])
+P.isPlayingVideo = lambda self: True    # a background stream still reports video
+xbmc.FULLSCREEN.on = False              # ...but no fullscreen video window is up
+opened = {}
+real_modal = xbmcgui.WindowXML.doModal
+
+
+def modal(self):
+    opened['keep'] = getattr(self, 'keep_playing', None)
+    self.onInit()
+    self.close()
+xbmcgui.WindowXML.doModal = modal
+try:
+    guide.open_guide('1', rows[3]['stream_id'])
+finally:
+    xbmcgui.WindowXML.doModal = real_modal
+check('a guide over a pictureless stream does not keep it playing (%s)' % opened,
+      opened.get('keep') is False)
+check('that channel is stopped when the guide closes', P.FILE == '' and P.STOPPED)
+xbmc.FULLSCREEN.on = None
+P.isPlayingVideo = lambda self: bool(P.FILE)
 
 # ------------------------------------------------------- the service watchdog
 S['tv_stop_on_exit'] = 'true'
@@ -132,9 +179,10 @@ playing(rows[0])
 P.isPlayingVideo = lambda self: False     # sound only: the picture is gone
 check('a channel with only sound left (nothing of the add-on on screen) is caught',
       playback.left_addon() is True)
-xbmc.WINDOWS['Container.FolderPath'] = 'plugin://plugin.video.xtreamcodes/?action=live_list'
-check('a stream started from one of our lists is left alone while browsing that list',
-      playback.left_addon() is False)
+xbmc.FULLSCREEN.on = False
+check('the same, while Player.isPlayingVideo() still says video is playing',
+      playback.left_addon() is True)
+xbmc.FULLSCREEN.on = None
 xbmc.WINDOWS['Container.FolderPath'] = ''
 xbmc.WINDOWS['System.CurrentWindow'] = 'Home'
 P.STOPPED = False
