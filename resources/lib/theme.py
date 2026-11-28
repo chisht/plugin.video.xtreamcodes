@@ -25,6 +25,7 @@ BY_SETTING = {'0': SKIN_DEFAULT, '1': SKIN_STBEMU, '': SKIN_DEFAULT}
 TV_XML = 'script-xtreamcodes-tv.xml'
 GUIDE_XML = 'script-xtreamcodes-guide.xml'
 BANNER_XML = 'script-xtreamcodes-banner.xml'
+COVER_XML = 'script-xtreamcodes-cover.xml'
 
 FIELDS = ('menu_bg', 'sel_bg', 'sel_mark', 'panel', 'head_bg', 'accent', 'playing',
           'catchup', 'fav', 'dim', 'grey', 'text', 'text_sel')

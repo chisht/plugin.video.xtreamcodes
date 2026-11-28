@@ -588,7 +588,17 @@ def announce_end():
 
 
 def start_live(row, cat_id, windowed=False, announce=True):
-    """Check and play a channel. Returns False (with a notice) if it is offline."""
+    """Check and play a channel. Returns False (with a notice) if it is offline.
+
+    From Kodi's fullscreen video (channel number typed, previous channel) the old
+    stream is closed behind a black cover, so the window Kodi falls back to is not
+    seen."""
+    from . import overlay
+    with overlay.fullscreen_cover():
+        return _start_live(row, cat_id, windowed, announce)
+
+
+def _start_live(row, cat_id, windowed, announce):
     t_start = time.time()
     if announce:
         announce_start(row['name'])
