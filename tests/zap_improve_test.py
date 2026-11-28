@@ -74,12 +74,11 @@ check('the stream is stopped before the check (one-connection plans: %s)' % (ord
 playback.start_live = real_start_live
 playback.check_live, playback.free_connection = real_check, real_free
 
-# our own stream is closed even with the setting off: Kodi keeps the old stream
-# running until the new one opens, so it would play on behind the banner
+# setting off: the old stream keeps playing until Kodi replaces it (stays fullscreen)
 P.STOPPED = False
 P.FILE = playback.live_item(rows[0])[0]
 S['switch_stop_first'] = 'false'
-check('the old stream is closed with the setting off too', playback.free_connection() and P.STOPPED)
+check('the old stream is left playing with the setting off', playback.free_connection() is False and not P.STOPPED)
 S['switch_stop_first'] = 'true'
 P.STOPPED = False
 P.FILE = playback.live_item(rows[0])[0]

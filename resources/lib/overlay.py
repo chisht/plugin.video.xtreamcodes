@@ -67,7 +67,8 @@ def fullscreen_cover():
     """
     win = None
     try:
-        if xbmc.getCondVisibility('Window.IsActive(fullscreenvideo)'):
+        if (common.setting_bool('switch_stop_first')
+                and xbmc.getCondVisibility('Window.IsActive(fullscreenvideo)')):
             win = _Cover(theme.COVER_XML, common.ADDON_PATH, theme.skin_dir(), '1080i')
             win.show()
     except Exception:
