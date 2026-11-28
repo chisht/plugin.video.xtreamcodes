@@ -347,14 +347,13 @@ anywhere.
 - *Live TV player engine*: Kodi default, or inputstream.ffmpegdirect (experimental).
   If FFmpeg Direct cannot play anything (on some boxes it does not even load),
   the add-on switches back to Kodi's player by itself and tells you.
-- *Close the current stream before opening the next*: the add-on closes the stream
-  it has playing before it checks and opens the next one. This is what a plan with
-  only one connection needs, and it is also what makes a channel change look right:
-  Kodi keeps a stream playing until the new one has opened, so a stream left
-  running goes on behind the channel banner for a few seconds. Turning this setting
-  off only skips the two short waits after closing (for the player to stop and the
-  provider to notice) - useful if your provider is quick and you want the very
-  shortest switch.
+- *Close the current stream before opening the next*: on, the add-on closes the
+  stream it has playing before it checks and opens the next one. A plan with only
+  one connection needs this. Kodi leaves fullscreen when a stream closes, so a
+  black screen covers the change for a few seconds. Off, the old stream keeps
+  playing until the new one replaces it: no black gap and you stay in fullscreen,
+  but a one-connection plan may refuse the new channel (HTTP 403) or have the
+  online check fail.
 - *Check channel is online before playing*, *Online check timeout*, *When Up/Down
   reaches an offline channel*, *Mark offline channels*. A channel that played a
   moment ago is not checked again for 10 minutes, and a check that failed is
@@ -406,8 +405,8 @@ offset, show progress and notifications, clear cached data, update now.
 | Problem | Try this |
 |---|---|
 | "Set up your account" won't go away / login fails | Check the server URL includes `http://` and the port, with nothing after it. Check **Account and status**. |
-| A new channel won't start after switching (HTTP 403) | Your plan allows a limited number of connections. The add-on closes the stream it has playing before opening the next one, so check **Account and status** for active connections and make sure nothing else (another TV, a phone) is watching. |
-| The previous channel plays on for a few seconds after a channel change | Update to 1.14.6 or later: the old stream is now stopped before the new one opens. Kodi keeps a stream running until the replacement has opened, so a stream left playing went on behind the channel banner. Keep **Close the current stream before opening the next** on if your plan has a connection limit. |
+| A new channel won't start after switching (HTTP 403) | Your plan allows a limited number of connections. With **Close the current stream before opening the next** off, the old stream is still open while the new one is checked, so turn it on; either way check **Account and status** for active connections and make sure nothing else (another TV, a phone) is watching. |
+| A channel change shows a black screen for a few seconds | **Close the current stream before opening the next** is on: Kodi leaves fullscreen while the old stream closes. If your plan allows more than one connection, turn it off for a gapless change. |
 | Channel switching feels slow | In Kodi, set **Settings → Player → Videos → Adjust display refresh rate** to **Off**. Use MPEG-TS. Try a lower **wait before tuning** value. |
 | Every channel shows as offline | Turn off **Check channel is online before playing**. Some single-connection providers refuse the check. |
 | Guide times are wrong | Set **EPG time offset**. |

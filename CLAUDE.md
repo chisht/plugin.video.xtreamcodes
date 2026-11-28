@@ -16,4 +16,4 @@ Rules (set by the owner):
   *Release to kodi-repo* workflow (or `./release.sh` with bypass rights) and see
   `docs/RELEASING.md`.
 - New user-facing strings go in `resources/language/resource.language.en_gb/strings.po`
-  (highest id in use: 30157) and settings in `resources/settings.xml`.
+  (highest id in use: 30170) and settings in `resources/settings.xml`.
