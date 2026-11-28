@@ -55,9 +55,16 @@ Never post logs or backups without removing the username and password.
 
 ## Releasing an update
 1. Bump `version` in `addon.xml` (and add a line to the changelog if any).
-2. Commit, then run `./publish_repo.sh`. It builds the zips, `addons.xml` and
-   checksums with `tools/build_repo.py` and pushes them to the `kodi-repo`
-   branch. Older versions stay in the branch so users can roll back.
+2. Commit and merge to the default branch.
+3. Actions → **Release to kodi-repo** → *Run workflow* (`dry_run` builds the
+   files without pushing). It builds the zips, `addons.xml` and checksums with
+   `tools/build_repo.py` and pushes them to the `kodi-repo` branch, which is
+   protected: the workflow is the only way in. Older versions stay in the
+   branch so users can roll back.
+
+Details, including the credentials the workflow needs, are in
+[`docs/RELEASING.md`](docs/RELEASING.md). Locally, `./release.sh` does the same
+build and push (needs bypass rights).
 
 The repository add-on itself lives in `repository.chisht/`; bump its version
 only when its URLs change. The update URLs only work while this GitHub repo is

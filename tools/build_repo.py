@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Build the Kodi repository files into repo_out/.
+"""Build the Kodi repository files into repo_out/ (default outdir).
 
 Layout produced (served from the `kodi-repo` branch):
   addons.xml, addons.xml.md5, index.html
   zips/<id>/<id>-<version>.zip (+ .sha256), icon.png, fanart.jpg
   repository.chisht.zip  (stable name, for the first install)
 
-Existing zips in repo_out/zips are kept, so older versions stay available.
+Existing zips in <outdir>/zips are kept, so older versions stay available.
+`main(outdir)` is the entry point; `tools/release_repo.py` calls it and pushes
+the result to the repository branch.
 """
 import hashlib
 import os
@@ -16,7 +18,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, sys.argv[1] if len(sys.argv) > 1 else "repo_out")
+sys.dont_write_bytecode = True
 
 # addon id -> (source dir, files/dirs to package)
 ADDONS = {
@@ -63,7 +65,8 @@ def sha256(path):
     return h.hexdigest()
 
 
-def main():
+def main(outdir=None):
+    OUT = outdir or os.path.join(ROOT, "repo_out")
     os.makedirs(OUT, exist_ok=True)
     xml_parts = []
     for addon_id, (src, entries) in ADDONS.items():
@@ -101,4 +104,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1] if len(sys.argv) > 1 else None)

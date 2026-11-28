@@ -18,9 +18,19 @@
 - `repository.chisht/` is the repository add-on; it points at raw GitHub URLs on the
   `kodi-repo` branch of this repo (works only once the repo is public).
 - `tools/build_repo.py [outdir]` builds addons.xml, addons.xml.md5, per-zip .sha256,
-  `zips/<id>/<id>-<ver>.zip` and a stable `repository.chisht.zip`.
-- `./publish_repo.sh` runs it in a worktree of `kodi-repo`, commits and pushes.
-  Release = bump `addon.xml` version, commit, `./publish_repo.sh`.
+  `zips/<id>/<id>-<ver>.zip` and a stable `repository.chisht.zip`; existing zips are
+  kept, so older versions stay installable.
+- `tools/release_repo.py` builds and pushes all of that to `kodi-repo` with git
+  plumbing (temporary index + `commit-tree` + `push <sha>:refs/heads/kodi-repo`), so
+  it never checks the branch out and leaves no local branch behind: the branch is
+  a single commit on top of its previous tip. `--worktree`, `--dry-run`, `--print`
+  for local use; `tests/release_repo_test.py` covers all of it offline.
+- **`kodi-repo` is protected** by the ruleset *kodi-repo* (no updates/deletes, no
+  force push, admins may bypass). Releases go through Actions → *Release to
+  kodi-repo* (`.github/workflows/release.yml`), which runs
+  `release/executor.sh` on the default branch's commit; it needs `GITHUB_TOKEN`
+  with the ruleset bypass, or the `RELEASE_TOKEN` secret - see `docs/RELEASING.md`.
+  Local shorthands: `./release.sh`, `./publish_repo.sh` (old name).
 
 ## Tests
 `tests/` has stub Kodi modules (`tests/stubs`), fake Xtream/TMDb/Trakt servers and
