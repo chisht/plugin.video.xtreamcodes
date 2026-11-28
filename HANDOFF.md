@@ -1,4 +1,4 @@
-# Handoff (state at version 1.14.2)
+# Handoff (state at version 1.14.3)
 
 ## Layout
 - `main.py` - plugin router (menus, play actions, `zap`, Discover, search).
@@ -35,6 +35,23 @@ Add new tests as `tests/<name>_test.py` printing `PASS`/`FAIL` lines and calling
 `sys.exit(1 if fails else 0)`; `run_all.sh` picks them up by itself.
 
 ## Latest work
+1.14.3: stop playback when leaving the add-on, from every window. Before, only
+`TVWindow.close()` stopped the stream; the grid guide cleared `PROP_UI_OPEN`
+without stopping, and a channel started from a list (Live TV, search, catch-up,
+a reminder) is resolved by Kodi, so leaving the add-on left only sound.
+`playback.UI_OPEN` (in-process counter) + `ui_opened()`/`ui_closed(keep_playing=)`
+now own the `PROP_UI_OPEN` property and call `stop_on_exit()` when the last window
+closes; both windows guard with `_ui_done` because Back can reach `close()` twice.
+A guide opened over fullscreen video (`keep_playing`, i.e. video playing and the
+zap state has no `w` mini-player flag) hands back to the picture and does not
+stop it. `left_addon()` is the service watchdog for exits the add-on cannot see:
+our stream playing, no fullscreen video, no add-on window, `Container.FolderPath`
+not under `plugin://plugin.video.xtreamcodes`, tuned more than `SETTLE` (6 s) ago
+and no modal dialog; `service.tick()` calls it. Setting `tv_stop_on_exit` (was
+"leaving TV mode") relabelled 30087 + help 30170. Only our own stream is ever
+stopped (`our_live_playing()` matches the panel base URL), so library playback is
+never touched. Test: `tests/stop_on_exit_test.py`.
+
 1.14.2: zapping timing fixed after a report that it got *slower* after turning on
 "close the current stream before opening the next one" and stayed slow when turned
 off. Cause: 1.14.1's `zap_resume` ran the online check while our own stream was
@@ -164,12 +181,15 @@ Kodi closes the old stream serially, so it cannot fully match STBEmu.
 Advice given: Settings > Player > Videos > Adjust display refresh rate = Off, MPEG-TS.
 
 ## Open items / ideas
-- Channel change timing on the real box (1.13.0 log, `tools/log_timing.py`): add-on
-  0.15 s, Kodi closing the old stream ~2.8 s (same from TV mode and from the
-  service, so not caused by fast keys), connect 0.2, probe 0.3, first picture 0.6;
-  total ~4 s. The close is the target: try `live_engine` = ffmpegdirect and compare.
-  One case: a 4.6 s close finished 0.06 s after the next key press arrived - watch
-  for that pattern in more logs.
+- Channel change timing on the real box: 1.14.2 log (`uploads/kodi.log`, Kodi 22
+  alpha, CoreELEC, skin stbemu) medians over 10 channel changes: key -> OpenFile
+  0.15 s (max 1.95), OpenFile -> InputStream 1.91 s (max 4.98 = Kodi closing the
+  old stream), connect 0.21, probe 0.37, decoder -> picture 0.32; key -> picture
+  median 3.31 s, max 5.77. No errors from the add-on. The "add-on ready 23.1 s" on
+  the first TV mode open is Kodi's `CAddonDatabase::SetLastUsed` (5.2 s) plus ~6 s
+  between launching the plugin and the root listing while it was fetched - not the
+  add-on. Still the target: Kodi closing the old stream (~2-5 s). Try
+  `live_engine` = ffmpegdirect and compare.
 - `fix20` sometimes loses one of 4 very fast presses (banner repeats, e.g. C5, C5),
   on old and new code alike: likely a race between key-press processes reading/
   writing the zap state. Investigate.

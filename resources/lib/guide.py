@@ -87,7 +87,7 @@ class GuideWindow(xbmcgui.WindowXML):
             self._update_now_line()
             return
         self._ready = True
-        xbmcgui.Window(10000).setProperty(common.PROP_UI_OPEN, '1')
+        playback.ui_opened()
         self.guide = EPG(common.epg_path())
         self.rows = live_rows(self.catalog, self.cat_id)
         if not self.rows:
@@ -426,6 +426,13 @@ class GuideWindow(xbmcgui.WindowXML):
 
     def close(self):
         self._stop.set()
+        if getattr(self, '_ui_done', False):
+            xbmcgui.WindowXML.close(self)
+            return
+        self._ui_done = True
+        # Closing the guide returns to whatever was underneath (Kodi's fullscreen
+        # video or this add-on's TV mode), so the channel keeps playing.
+        playback.ui_closed(keep_playing=getattr(self, 'keep_playing', False))
         xbmcgui.WindowXML.close(self)
 
 
@@ -434,8 +441,11 @@ def open_guide(cat_id='*', select_id=None, before_show=None, win=None):
     if win is None:
         win = GuideWindow(theme.GUIDE_XML, common.ADDON_PATH, theme.skin_dir(), '1080i')
     win.setup(cat_id, select_id)
-    ui = xbmcgui.Window(10000)
-    was_open = ui.getProperty(common.PROP_UI_OPEN)   # TV mode may be underneath
+    # Opened while a channel plays fullscreen: closing the guide returns to that
+    # picture, so the channel keeps playing. Opened from the add-on's own menu
+    # (or anywhere else) it is the last screen of the add-on: stop on exit.
+    st = playback.zap_state() or {}
+    win.keep_playing = bool(xbmc.Player().isPlayingVideo() and not st.get('w'))
     below = playback.UI['win']
     playback.UI['win'] = win
     try:
@@ -444,9 +454,7 @@ def open_guide(cat_id='*', select_id=None, before_show=None, win=None):
         win.doModal()
     finally:
         playback.UI['win'] = below
-        win._stop.set()
-        if not was_open:
-            ui.clearProperty(common.PROP_UI_OPEN)
+        win.close()
         if win.guide:
             win.guide.close()
         win.catalog.close()

@@ -203,6 +203,8 @@ def tick(monitor, win, scrobbler):
                     mode = 'full'
         if mode:
             do_sync(monitor, win, mode)
+    if playback.left_addon():
+        playback.stop_on_exit()
     scrobbler.tick()
     reminders.check_sleep()
     for due in reminders.take_due(common.setting_int('reminder_lead', 1)):

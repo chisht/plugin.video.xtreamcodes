@@ -206,7 +206,7 @@ msgid "Mark offline channels (greyed out for 10 minutes)"
 msgstr ""
 
 msgctxt "#30087"
-msgid "Stop playback when leaving TV mode"
+msgid "Stop playback when leaving the add-on"
 msgstr ""
 
 msgctxt "#30090"
@@ -411,4 +411,8 @@ msgstr ""
 
 msgctxt "#30167"
 msgid "Change channel in the mini player when you stop moving in the channel list (as an STBEmu / Stalker box does), instead of waiting for OK. Off by default: it opens a stream for every channel you rest on, which counts towards your connection limit."
+msgstr ""
+
+msgctxt "#30170"
+msgid "Stops the channel when you leave the add-on: Back out of TV mode or the guide, or Back out of a list (Live TV, Search, catch-up, a reminder pop-up) while a channel plays. Kodi keeps a stream started from a list playing in the background; with this on it stops instead, so your connection is free for another device."
 msgstr ""
