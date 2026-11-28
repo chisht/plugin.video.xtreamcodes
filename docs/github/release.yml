@@ -1,0 +1,70 @@
+name: Release to kodi-repo
+
+# Builds the Kodi repository (zips, addons.xml, index.html) from addon.xml and
+# pushes it to the protected `kodi-repo` branch, so Kodi devices pick the new
+# version up on their next update check.
+#
+# How to run it: repo > Actions > "Release to kodi-repo" > Run workflow.
+#   * `dry_run` builds and lists the files without pushing.
+# The workflow always releases the default branch (its own commit), whatever
+# branch you pick in the Run workflow dialog: bump the version in `addon.xml`
+# and merge to the default branch first.
+#
+# If the push is rejected with "Changes must be made through a pull request" or
+# "protected branch", the branch ruleset for `kodi-repo` has to let the
+# release through - either "GitHub Actions" in the bypass list, or, when that
+# is not offered, an admin ("Repository admin") bypass plus a `RELEASE_TOKEN`
+# secret holding a fine-grained PAT with Contents: read and write. See
+# docs/RELEASING.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build and list the changes without pushing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-kodi-repo
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # The release runs the workflow's own commit, so the build and the
+      # scripts come from the same tree (and are the reviewed default branch).
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.workflow_sha }}
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN || github.token }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Self-test the release tooling (offline)
+        run: python3 tests/release_repo_test.py
+
+      - name: Release
+        env:
+          # the branch push is authorised by the job token, or by RELEASE_TOKEN
+          # when that secret exists (see docs/RELEASING.md)
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
+        run: sh release/executor.sh ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Release to \`kodi-repo\`"
+            echo
+            echo "- add-on version: \`$(python3 -c "import xml.etree.ElementTree as E;print(E.parse('addon.xml').getroot().get('version'))")\`"
+            echo "- run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "- users get it on their next repository update check."
+          } >> "$GITHUB_STEP_SUMMARY"
